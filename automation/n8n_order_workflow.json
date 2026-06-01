@@ -1,0 +1,117 @@
+{
+  "name": "BRAVE BREW - Order Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bravebrew-order",
+        "responseMode": "onReceived",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Formspree Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 400],
+      "webhookId": "bravebrew-order"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\n\n// Formspree posila data jako flat object\nconst jmeno   = body.jmeno || body.name || '';\nconst email   = body.email || '';\nconst kava    = body.kava  || '';\nconst pocet   = parseInt(body.pocet) || 1;\nconst doprava = body.doprava || 'zasilkovna';\nconst vydejna = body.vydejna || '';\nconst adresa  = body.adresa || '';\nconst telefon = body.telefon || '';\nconst poznamka = body.poznamka || '';\n\n// Ceny\nconst ceny = { etiopie: 340, costarica: 320, oba: 660 };\nconst cenaKavy = ceny[kava] || 0;\n\n// Doprava\nlet cenahDopravy = 0;\nif (pocet < 2 && kava !== 'oba') {\n  cenahDopravy = doprava === 'zasilkovna' ? 60 : 89;\n}\n\nconst celkem = cenaKavy * pocet + cenahDopravy;\nconst naUkrajinu = 100 * pocet;\n\n// Nazev produktu\nconst nazvy = { etiopie: 'Ethiopia Single Origin', costarica: 'Costa Rica Single Origin', oba: 'Ethiopia + Costa Rica Bundle' };\nconst nazevProduktu = nazvy[kava] || kava;\n\nreturn [{\n  json: {\n    jmeno, email, kava, pocet, doprava, vydejna, adresa, telefon, poznamka,\n    celkem, cenahDopravy, naUkrajinu, nazevProduktu,\n    orderDate: new Date().toLocaleDateString('cs-CZ'),\n    orderTime: new Date().toLocaleTimeString('cs-CZ')\n  }\n}];"
+      },
+      "id": "parse-order",
+      "name": "Parse Order",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 400]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Objednávka přijata - BRAVE BREW #{{ $json.orderDate }}",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafaf8\">\n<div style=\"border-top:4px solid #0D0D0D;padding-top:20px\">\n  <h1 style=\"font-size:22px;margin:0 0 4px\">Objednávka přijata ✓</h1>\n  <p style=\"color:#666;margin:0\">BRAVE BREW / Coffee for UA</p>\n</div>\n\n<div style=\"background:#fff;border:1px solid #e5e5e5;padding:20px;margin:20px 0\">\n  <p>Ahoj {{ $json.jmeno }},</p>\n  <p>objednávku máme. Tady jsou platební instrukce:</p>\n  \n  <div style=\"background:#f5f0e8;padding:16px;border-left:4px solid #FFD500;margin:16px 0\">\n    <strong>Bankovní převod</strong><br>\n    Číslo účtu: <strong>[DOPLNIT UCET]</strong><br>\n    Variabilní symbol: <strong>{{ $json.orderDate.replace(/\\./g,'') }}</strong><br>\n    Částka: <strong>{{ $json.celkem }} Kč</strong><br>\n    Poznámka: {{ $json.jmeno }}\n  </div>\n  \n  <table style=\"width:100%;border-collapse:collapse;margin:16px 0\">\n    <tr style=\"background:#f5f5f5\">\n      <td style=\"padding:8px\"><strong>Produkt</strong></td>\n      <td style=\"padding:8px\">{{ $json.nazevProduktu }}</td>\n    </tr>\n    <tr>\n      <td style=\"padding:8px\"><strong>Množství</strong></td>\n      <td style=\"padding:8px\">{{ $json.pocet }} balíček/ků</td>\n    </tr>\n    <tr style=\"background:#f5f5f5\">\n      <td style=\"padding:8px\"><strong>Doprava</strong></td>\n      <td style=\"padding:8px\">{{ $json.doprava === 'zasilkovna' ? 'Zásilkovna - výdejní místo' : 'Zásilkovna - kurýr' }}{{ $json.vydejna ? ' (' + $json.vydejna + ')' : '' }}</td>\n    </tr>\n    <tr>\n      <td style=\"padding:8px\"><strong>Celkem</strong></td>\n      <td style=\"padding:8px\"><strong>{{ $json.celkem }} Kč</strong></td>\n    </tr>\n    <tr style=\"background:#005BBB;color:#fff\">\n      <td style=\"padding:8px\">Z toho na Ukrajinu</td>\n      <td style=\"padding:8px\"><strong>{{ $json.naUkrajinu }} Kč</strong></td>\n    </tr>\n  </table>\n  \n  <p>Jakmile platbu přijmeme, zapražíme a pošleme Zásilkovnou. Dodání do 3 pracovních dnů.</p>\n  <p>Díky, že pijete dobrou kávu se smyslem.</p>\n  <p>Adam Klásek<br><small>BRAVE BREW / coffeeforua.cz</small></p>\n</div>\n\n<p style=\"color:#999;font-size:12px\">Objednávka {{ $json.orderDate }} {{ $json.orderTime }} - adaklasek@gmail.com</p>\n</body></html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "email-customer",
+      "name": "Email Customer (Payment Details)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [720, 280]
+    },
+    {
+      "parameters": {
+        "sendTo": "adaklasek@gmail.com",
+        "subject": "Nova objednavka: {{ $json.jmeno }} - {{ $json.nazevProduktu }} x{{ $json.pocet }} ({{ $json.celkem }} Kc)",
+        "emailType": "text",
+        "message": "NOVA OBJEDNAVKA\n\nJmeno: {{ $json.jmeno }}\nEmail: {{ $json.email }}\nTelefon: {{ $json.telefon }}\n\nProdukt: {{ $json.nazevProduktu }}\nMnozstvi: {{ $json.pocet }}x\nDoprava: {{ $json.doprava }}\nMisto: {{ $json.vydejna }}\nAdresa: {{ $json.adresa }}\n\nCelkem: {{ $json.celkem }} Kc\nNa Ukrajinu: {{ $json.naUkrajinu }} Kc\n\nPoznamka: {{ $json.poznamka }}\n\nDatum: {{ $json.orderDate }} {{ $json.orderTime }}\n\n---\nOdpoved na: {{ $json.email }}\nPlatebni instrukce odeslany zakaznikovi automaticky.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "notify-adam",
+      "name": "Notify Adam",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [720, 520]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://app.fakturoid.cz/api/v2/accounts/{{ $credentials.fakturoidSlug }}/invoices.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "BRAVE BREW (adaklasek@gmail.com)"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"custom_id\": \"BB-{{ $json.orderDate.replace(/\\./g,'-') }}\",\n  \"subject_id\": null,\n  \"due\": 7,\n  \"issued_on\": \"{{ new Date().toISOString().split('T')[0] }}\",\n  \"lines\": [\n    {\n      \"name\": \"{{ $json.nazevProduktu }} x{{ $json.pocet }}\",\n      \"quantity\": {{ $json.pocet }},\n      \"unit_price\": {{ ($json.celkem - $json.cenahDopravy) / $json.pocet }},\n      \"vat_rate\": 0\n    },\n    {{ $json.cenahDopravy > 0 ? '{ \"name\": \"Doprava Zasilkovna\", \"quantity\": 1, \"unit_price\": ' + $json.cenahDopravy + ', \"vat_rate\": 0 },' : '' }}\n  ],\n  \"note\": \"Zakaznik: {{ $json.jmeno }} <{{ $json.email }}>\"\n}"
+      },
+      "id": "fakturoid",
+      "name": "Create Fakturoid Invoice",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 400]
+    }
+  ],
+  "connections": {
+    "Formspree Webhook": {
+      "main": [[{ "node": "Parse Order", "type": "main", "index": 0 }]]
+    },
+    "Parse Order": {
+      "main": [
+        [
+          { "node": "Email Customer (Payment Details)", "type": "main", "index": 0 },
+          { "node": "Notify Adam", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Email Customer (Payment Details)": {
+      "main": [[{ "node": "Create Fakturoid Invoice", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "last"
+  },
+  "meta": {
+    "instanceId": "bravebrew",
+    "templateId": "bravebrew-order-v1"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "name": "BRAVE BREW - Counter Update via GitHub API",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bravebrew-counter",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-counter",
+      "name": "Counter Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 400],
+      "webhookId": "bravebrew-counter"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.github.com/repos/adaklasek/coffeeforua/contents/script.js",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{ $credentials.githubToken }}" },
+            { "name": "Accept", "value": "application/vnd.github.v3+json" }
+          ]
+        }
+      },
+      "id": "get-script",
+      "name": "GET script.js from GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst incoming = $('Counter Webhook').first().json;\n\n// Decode base64 content from GitHub API\nconst scriptContent = Buffer.from(response.content, 'base64').toString('utf-8');\n\n// Parse current BAGS value\nconst match = scriptContent.match(/const BAGS = (\\d+)/);\nconst oldBags = match ? parseInt(match[1]) : 0;\nconst addBags = parseInt(incoming.bags) || 1;\nconst newBags = oldBags + addBags;\n\n// Replace in content\nconst newContent = scriptContent.replace(/const BAGS = \\d+/, `const BAGS = ${newBags}`);\n\n// Encode back to base64\nconst newContentB64 = Buffer.from(newContent).toString('base64');\n\nreturn [{\n  json: {\n    oldBags,\n    addBags,\n    newBags,\n    newContentB64,\n    sha: response.sha,\n    donated: newBags * 100,\n    addedDonation: addBags * 100\n  }\n}];"
+      },
+      "id": "compute-counter",
+      "name": "Compute New Counter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 400]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.github.com/repos/adaklasek/coffeeforua/contents/script.js",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{ $credentials.githubToken }}" },
+            { "name": "Accept", "value": "application/vnd.github.v3+json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"message\": \"Counter: {{ $json.newBags }} bags sold, {{ $json.donated }} Kc donated to Koridor.ua\",\n  \"content\": \"{{ $json.newContentB64 }}\",\n  \"sha\": \"{{ $json.sha }}\"\n}"
+      },
+      "id": "commit-github",
+      "name": "Commit to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst prev = $('Compute New Counter').first().json;\n\n// Check if donation reminder is due (multiples of 10 bags)\nconst shouldRemind = Math.floor(prev.newBags / 10) > Math.floor(prev.oldBags / 10);\n\nreturn [{\n  json: {\n    success: true,\n    newBags: prev.newBags,\n    donated: prev.donated,\n    message: `Counter updated: ${prev.oldBags} -> ${prev.newBags} (+${prev.addBags})`,\n    donationReminder: shouldRemind \n      ? `POSLI ${prev.donated} Kc na Koridor.ua!` \n      : null\n  }\n}];"
+      },
+      "id": "build-response",
+      "name": "Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 400]
+    }
+  ],
+  "connections": {
+    "Counter Webhook": {
+      "main": [[{ "node": "GET script.js from GitHub", "type": "main", "index": 0 }]]
+    },
+    "GET script.js from GitHub": {
+      "main": [[{ "node": "Compute New Counter", "type": "main", "index": 0 }]]
+    },
+    "Compute New Counter": {
+      "main": [[{ "node": "Commit to GitHub", "type": "main", "index": 0 }]]
+    },
+    "Commit to GitHub": {
+      "main": [[{ "node": "Build Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

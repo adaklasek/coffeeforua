@@ -1,0 +1,103 @@
+{
+  "name": "BRAVE BREW - Weekly Content Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "weeks", "weeksInterval": 1, "triggerAtDay": [1], "triggerAtHour": 8 }]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Every Monday 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Jsi copywriter pro BRAVE BREW (coffeeforua.cz) - ceska specialty kavova znacka na podporu Ukrajiny. Ton: primeho, sebevedomy, bez pathosu. Nikdy nepouzivej pomlcky (—). Vzdy konkretni, strucne, s vyzvu k akci."
+            },
+            {
+              "role": "user",
+              "content": "Vygeneruj 5 Instagram caption navrhuu pro tento tyden. Stridat: (1) coffee craft/vzdel, (2) dopad 100 Kc, (3) produkt Ethiopia, (4) produkt Costa Rica, (5) story/zakulisi. Ke kazdemu pridat 15 hashtaguu. Format: CAPTION_1: ..., HASHTAGS_1: ..."
+            }
+          ]
+        },
+        "options": { "temperature": 0.8 }
+      },
+      "id": "gpt-captions",
+      "name": "GPT-4: Generate Captions",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [480, 280]
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "generate",
+        "prompt": "Minimalist dark specialty coffee brand social media image. Product shot concept for BRAVE BREW Czech brand. Very dark background #0D0D0D, warm kraft paper texture, Ukrainian blue and yellow accent elements (#005BBB, #FFD500). Bold editorial typography space. No text in image. Photorealistic product placement with 250g coffee bag, coffee beans scattered, pour over glass. Professional coffee photography style.",
+        "model": "dall-e-3",
+        "size": "1024x1792",
+        "quality": "hd",
+        "style": "vivid"
+      },
+      "id": "dalle-image",
+      "name": "DALL-E 3: Generate Product Image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [480, 520]
+    },
+    {
+      "parameters": {
+        "jsCode": "const captions = $('GPT-4: Generate Captions').first().json.message?.content || '';\nconst imageUrl  = $('DALL-E 3: Generate Product Image').first().json.data?.[0]?.url || 'N/A';\n\nconst week = new Date().toLocaleDateString('cs-CZ', { week: 'short', year: 'numeric' });\n\nreturn [{ json: {\n  week,\n  captions,\n  imageUrl,\n  summary: `Obsah pro tyden ${week} vygenerovan. Captions: ${captions.length} znaku. Obrazek: ${imageUrl !== 'N/A' ? 'OK' : 'CHYBA'}`\n}}];"
+      },
+      "id": "compile",
+      "name": "Compile Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 400]
+    },
+    {
+      "parameters": {
+        "sendTo": "adaklasek@gmail.com",
+        "subject": "BRAVE BREW - obsah pro tento tyden je pripraven",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px\">\n<h2>Instagram obsah - {{ $json.week }}</h2>\n<p>Vygenerovano automaticky.</p>\n\n<h3>Obrazek (DALL-E 3)</h3>\n<img src=\"{{ $json.imageUrl }}\" style=\"max-width:100%;border-radius:8px\">\n<p><a href=\"{{ $json.imageUrl }}\">Stahnout obrazek</a></p>\n\n<h3>Captions (GPT-4)</h3>\n<pre style=\"background:#f5f5f5;padding:16px;white-space:pre-wrap\">{{ $json.captions }}</pre>\n\n<hr>\n<small>BRAVE BREW automation - coffeeforua.cz</small>\n</body></html>"
+      },
+      "id": "email-adam-content",
+      "name": "Email Adam: Weekly Content",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [960, 400]
+    }
+  ],
+  "connections": {
+    "Every Monday 8am": {
+      "main": [
+        [
+          { "node": "GPT-4: Generate Captions", "type": "main", "index": 0 },
+          { "node": "DALL-E 3: Generate Product Image", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "GPT-4: Generate Captions": {
+      "main": [[{ "node": "Compile Results", "type": "main", "index": 0 }]]
+    },
+    "DALL-E 3: Generate Product Image": {
+      "main": [[{ "node": "Compile Results", "type": "main", "index": 0 }]]
+    },
+    "Compile Results": {
+      "main": [[{ "node": "Email Adam: Weekly Content", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -51,58 +51,128 @@ Object.values(els).forEach(el => { if (el) io.observe(el); });
 const ticker = document.querySelector('.ticker-inner');
 if (ticker) ticker.innerHTML += ticker.innerHTML;
 
-// Packeta / Zásilkovna widget
-// Po registraci na client.packeta.com vloz sem svuj API klic:
+// ─── Packeta API key ──────────────────────────────────────────────────────────
 const PACKETA_API_KEY = '1e13f3ef06a99418';
 
+// ─── Cenový kalkulátor ────────────────────────────────────────────────────────
+const PRICES   = { etiopie: 340, costarica: 320, oba: 660 };
+const NAMES    = { etiopie: 'Ethiopia', costarica: 'Costa Rica', oba: 'Bundle (Ethiopia + Costa Rica)' };
+const SHIPPING_COST = { zasilkovna: 60, kuryr: 89 };
+
+function updateOrder() {
+  const kavaEl  = document.getElementById('kava');
+  const pocetEl = document.getElementById('pocet');
+  const qtyWrap = document.getElementById('qty-wrap');
+  const summary = document.getElementById('order-summary');
+  if (!kavaEl || !summary) return;
+
+  const kava     = kavaEl.value;
+  const isBundle = kava === 'oba';
+
+  // Zobrazit/skryt počet (u bundlu skrýt)
+  if (qtyWrap) {
+    qtyWrap.style.display = isBundle ? 'none' : '';
+    if (pocetEl) {
+      pocetEl.required = !isBundle;
+      if (isBundle) pocetEl.value = '1';
+    }
+  }
+
+  if (!kava) { summary.classList.remove('active'); return; }
+
+  const pocet        = isBundle ? 1 : (parseInt(pocetEl?.value) || 1);
+  const pricePerUnit = PRICES[kava] || 0;
+  const productTotal = pricePerUnit * pocet;
+  const donated      = isBundle ? 200 : pocet * 100;
+  const freeShip     = pocet >= 2 || isBundle;
+  const doprava      = document.getElementById('doprava')?.value || 'zasilkovna';
+  const shipCost     = freeShip ? 0 : (SHIPPING_COST[doprava] || 60);
+  const total        = productTotal + shipCost;
+
+  const pocetLabel = isBundle ? '1 bundle' : `${pocet} ks`;
+  document.getElementById('summary-product').textContent      = `${NAMES[kava]} · ${pocetLabel}`;
+  document.getElementById('summary-product-price').textContent = `${productTotal} Kč`;
+  document.getElementById('summary-shipping').textContent      = freeShip ? 'zdarma' : `${shipCost} Kč`;
+  document.getElementById('summary-total').textContent         = `${total} Kč`;
+  document.getElementById('summary-donation').textContent      = `${donated} Kč`;
+  summary.classList.add('active');
+}
+
+// ─── Zásilkovna toggle ────────────────────────────────────────────────────────
+function togglePickup(val) {
+  const pickupWrap   = document.getElementById('pickup-wrap');
+  const addressWrap  = document.getElementById('address-wrap');
+  const vydejnaInput = document.getElementById('vydejna-name');
+  const adresaInput  = document.getElementById('adresa');
+
+  if (val === 'zasilkovna') {
+    pickupWrap.style.display  = '';
+    addressWrap.style.display = 'none';
+    vydejnaInput.required = true;
+    if (adresaInput) adresaInput.required = false;
+  } else {
+    pickupWrap.style.display  = 'none';
+    addressWrap.style.display = '';
+    vydejnaInput.required = false;
+    if (adresaInput) adresaInput.required = true;
+  }
+}
+
+// ─── Zásilkovna widget - otevřít a zobrazit výsledek ─────────────────────────
 function openPacketa() {
   const options = { country: 'cz', language: 'cs' };
   Packeta.Widget.pick(PACKETA_API_KEY, function(point) {
     if (!point) return;
-    document.getElementById('vydejna-name').value = point.name + ', ' + point.place;
-    document.getElementById('vydejna-id').value = point.id;
+    const label = point.name + ', ' + point.place;
+    document.getElementById('vydejna-name').value = label;
+    document.getElementById('vydejna-id').value   = point.id;
+    // Zobrazit hint s potvrzením výběru
+    const hint = document.getElementById('pickup-hint');
+    const lbl  = document.getElementById('pickup-selected-label');
+    if (hint && lbl) { lbl.textContent = label; hint.style.display = ''; }
   }, options);
 }
 
-function togglePickup(val) {
-  const pickupWrap = document.getElementById('pickup-wrap');
-  const addressWrap = document.getElementById('address-wrap');
-  const vydejnaInput = document.getElementById('vydejna-name');
-  if (val === 'zasilkovna') {
-    pickupWrap.style.display = '';
-    addressWrap.style.display = 'none';
-    vydejnaInput.required = true;
-  } else {
-    pickupWrap.style.display = 'none';
-    addressWrap.style.display = '';
-    vydejnaInput.required = false;
-  }
-}
-
-// Order form
-const form = document.querySelector('.order-form');
+// ─── Objednávkový formulář ────────────────────────────────────────────────────
+const form = document.getElementById('order-form');
 if (form) {
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const btn = form.querySelector('button[type="submit"]');
+    const btn  = document.getElementById('submit-btn');
     const orig = btn.textContent;
     btn.textContent = 'Odesílám...';
     btn.disabled = true;
+
     try {
+      const fd   = new FormData(form);
+      const data = Object.fromEntries(fd.entries());
+
       const res = await fetch(form.action, {
         method: 'POST',
-        body: new FormData(form),
-        headers: { Accept: 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data),
       });
-      if (res.ok) {
-        btn.textContent = '✓ Odesláno. Ozvu se do 24 h.';
-        btn.style.background = '#1a6e35';
+
+      const json = res.ok ? await res.json().catch(() => null) : null;
+
+      if (json?.paymentUrl) {
+        // Přesměrovat na Comgate platební bránu
+        window.location.href = json.paymentUrl;
+      } else if (res.ok) {
+        // Fallback: platba převodem - platební instrukce přijdou emailem
+        btn.textContent       = '✓ Odesláno - platební instrukce dorazí do emailu.';
+        btn.style.background  = '#1a6e35';
         btn.style.borderColor = '#1a6e35';
         form.reset();
-      } else throw new Error();
+        document.getElementById('order-summary')?.classList.remove('active');
+        const hint = document.getElementById('pickup-hint');
+        if (hint) hint.style.display = 'none';
+      } else {
+        throw new Error('server error');
+      }
     } catch {
       btn.textContent = orig;
-      btn.disabled = false;
+      btn.disabled    = false;
       alert('Nepodařilo se odeslat. Napiš přímo na adaklasek@gmail.com');
     }
   });

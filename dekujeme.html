@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platba proběhla - BRAVE BREW</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .thanks-wrap {
+      max-width: 560px; margin: 0 auto;
+      padding: 8rem 2rem; text-align: center;
+    }
+    .thanks-icon {
+      width: 72px; height: 72px; background: #1a6e35;
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; margin: 0 auto 2rem; font-size: 2rem;
+    }
+    .thanks-wrap h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+    .thanks-wrap p { color: var(--gray); margin-bottom: 1rem; font-size: 1rem; line-height: 1.8; }
+    .thanks-steps {
+      background: var(--cream); border-radius: 4px;
+      padding: 1.5rem; margin: 2rem 0; text-align: left;
+    }
+    .thanks-steps h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gray); margin-bottom: 1rem; }
+    .thanks-steps ol { padding-left: 1.5rem; }
+    .thanks-steps li { font-size: 0.95rem; line-height: 2; }
+    .ua-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: #EBF2FF; color: var(--ua-blue);
+      padding: 0.75rem 1.25rem; border-radius: 4px;
+      font-size: 0.9rem; font-weight: 600; margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <nav id="nav" class="scrolled">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="logo-dark.png" alt="Brave Brew" class="logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="logo-fallback">BB</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="thanks-wrap">
+    <div class="thanks-icon">✓</div>
+    <h1>Platba proběhla.</h1>
+    <p>Díky za objednávku a za to, že pomáháš. Káva je na řadě.</p>
+
+    <div class="ua-badge">
+      🇺🇦 100 Kč z tvé objednávky jde přímo Koridor.ua
+    </div>
+
+    <div class="thanks-steps">
+      <h3>Co se děje dál</h3>
+      <ol>
+        <li>Potvrzení platby přijde na tvůj email</li>
+        <li>Zapražíme a zabalíme do 3 pracovních dnů</li>
+        <li>Zásilkovna tě upozorní SMSkou s číslem zásilky</li>
+        <li>Vyzvedneš nebo dostaneš kurýrem</li>
+      </ol>
+    </div>
+
+    <a href="index.html" class="btn-black">Zpět na hlavní stránku</a>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

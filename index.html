@@ -42,6 +42,7 @@
       <ul class="nav-links">
         <li><a href="#kavy">Kávy</a></li>
         <li><a href="#proc">Proč BB</a></li>
+        <li><a href="#pribeh">Příběh</a></li>
         <li><a href="#dopad">Dopad</a></li>
         <li><a href="#faq">FAQ</a></li>
         <li><a href="#objednat" class="nav-cta">Koupit kávu →</a></li>
@@ -251,6 +252,45 @@
     </div>
   </section>
 
+  <!-- NAS PRIBEH -->
+  <section class="pribeh" id="pribeh">
+    <div class="section-inner">
+      <div class="pribeh-grid">
+        <div class="pribeh-left">
+          <span class="section-eyebrow">Náš příběh</span>
+          <h2>Začalo to<br>24. února<br>2022.</h2>
+          <p class="pribeh-lead">Stejně jako většina z vás - sledoval jsem zprávy a cítil, že to nestačí.</p>
+          <p>Nejsem voják. Nejsem dobrovolník na frontě. Ale pražit kávu - to umím. A lidi, kteří potřebují přímou pomoc - ti existují. Stačilo jedno a druhé spojit.</p>
+          <p>BRAVE BREW vznikl jako přímá odpověď bez keců. Žádná charita s marketingovým oddělením. Žádné procento ze zisku po odečtení nákladů. Stovka z každého balíčku přímo tam, kde to fakt pomáhá - organizaci Koridor.ua, která to dělá od prvního dne.</p>
+          <p>Dnes pražíme v Opavě. Zelená zrna přivážíme z Etiopie a Costa Ricy. Každá objednávka jde Zásilkovnou do 3 dnů. A každý balíček posílá 100 Kč lidem v přímém ohrožení.</p>
+          <div class="pribeh-sig">
+            <strong>Adam Klásek</strong>
+            <span>zakladatel BRAVE BREW, Opava</span>
+          </div>
+        </div>
+        <div class="pribeh-right">
+          <div class="pribeh-numbers">
+            <div class="pribeh-num-item">
+              <span class="pribeh-big">100 Kč</span>
+              <span class="pribeh-desc">z každého balíčku, přímo Koridor.ua</span>
+            </div>
+            <div class="pribeh-num-item">
+              <span class="pribeh-big">2</span>
+              <span class="pribeh-desc">single-origin kávy, praženo v Opavě</span>
+            </div>
+            <div class="pribeh-num-item">
+              <span class="pribeh-big">2022</span>
+              <span class="pribeh-desc">rok vzniku - od prvního dne války</span>
+            </div>
+          </div>
+          <div class="pribeh-quote">
+            <blockquote>"Dobrá káva tě nabije. Správná volba taky. My děláme obojí najednou."</blockquote>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- DOPAD -->
   <section class="dopad" id="dopad">
     <div class="section-inner">
@@ -348,7 +388,9 @@
         <h2>Stačí vyplnit.<br>Zbytek je na nás.</h2>
         <p class="form-note-top">Formulář → platební instrukce mailem → převod → káva u tebe do 3 dnů. Žádná registrace, žádný účet.</p>
       </div>
-      <form class="order-form" action="https://formspree.io/f/xaqkjzyb" method="POST">
+      <form class="order-form" id="order-form" action="/.netlify/functions/order" method="POST">
+
+        <!-- Jmeno + email -->
         <div class="form-row">
           <div class="form-group">
             <label>Jméno a příjmení *</label>
@@ -359,26 +401,30 @@
             <input type="email" name="email" required placeholder="jan@email.cz">
           </div>
         </div>
+
+        <!-- Kava + pocet -->
         <div class="form-row">
           <div class="form-group">
             <label>Výběr kávy *</label>
-            <select name="kava" id="kava" required>
-              <option value="">- Vyber -</option>
-              <option value="etiopie">Ethiopia - 340 Kč</option>
-              <option value="costarica">Costa Rica - 320 Kč</option>
-              <option value="oba">Oboje (Ethiopia + Costa Rica) - 660 Kč + doprava zdarma</option>
+            <select name="kava" id="kava" required onchange="updateOrder()">
+              <option value="">- Vyber kávu -</option>
+              <option value="etiopie">Ethiopia - 340 Kč / ks</option>
+              <option value="costarica">Costa Rica - 320 Kč / ks</option>
+              <option value="oba">Bundle: Ethiopia + Costa Rica - 660 Kč</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Počet balíčků *</label>
-            <select name="pocet" required>
-              <option value="1">1 balíček</option>
-              <option value="2" selected>2 balíčky - doprava zdarma</option>
-              <option value="3">3 balíčky</option>
-              <option value="4+">4 a více - napiš do poznámky</option>
+          <div class="form-group" id="qty-wrap">
+            <label>Počet *</label>
+            <select name="pocet" id="pocet" required onchange="updateOrder()">
+              <option value="1">1 ks</option>
+              <option value="2">2 ks - doprava zdarma</option>
+              <option value="3">3 ks - doprava zdarma</option>
+              <option value="4">4 a více ks - upřesni v poznámce</option>
             </select>
           </div>
         </div>
+
+        <!-- Telefon + doruceni -->
         <div class="form-row">
           <div class="form-group">
             <label>Telefon</label>
@@ -386,32 +432,65 @@
           </div>
           <div class="form-group">
             <label>Doručení</label>
-            <select name="doprava" id="doprava" onchange="togglePickup(this.value)">
+            <select name="doprava" id="doprava" onchange="togglePickup(this.value); updateOrder()">
               <option value="zasilkovna">Zásilkovna - výdejní místo (60 Kč)</option>
               <option value="kuryr">Zásilkovna - kurýr na adresu (89 Kč)</option>
             </select>
           </div>
         </div>
+
+        <!-- Zásilkovna widget -->
         <div class="form-group" id="pickup-wrap">
           <label>Výdejní místo *</label>
           <div class="pickup-row">
-            <input type="text" name="vydejna" id="vydejna-name" readonly placeholder="Zatím nevybráno" required>
+            <input type="text" name="vydejna" id="vydejna-name" readonly placeholder="Klikni na tlačítko a vyber výdejní místo" required>
             <input type="hidden" name="vydejna_id" id="vydejna-id">
             <button type="button" class="btn-pickup" onclick="openPacketa()">Vybrat místo →</button>
           </div>
+          <p class="pickup-hint" id="pickup-hint" style="display:none">
+            <span class="pickup-check">✓</span> <span id="pickup-selected-label"></span>
+            <button type="button" class="pickup-change" onclick="openPacketa()">Změnit</button>
+          </p>
         </div>
+
+        <!-- Adresa pro kuryr -->
         <div class="form-group" id="address-wrap" style="display:none">
-          <label>Adresa doručení</label>
-          <input type="text" name="adresa" placeholder="Ulice, č.p., město, PSČ">
+          <label>Adresa doručení *</label>
+          <input type="text" name="adresa" id="adresa" required placeholder="Ulice č.p., město, PSČ">
         </div>
+
+        <!-- Live cenový souhrn -->
+        <div class="order-summary" id="order-summary">
+          <div class="os-row">
+            <span id="summary-product">Vyber kávu výše</span>
+            <span id="summary-product-price"></span>
+          </div>
+          <div class="os-row" id="summary-shipping-row">
+            <span>Doprava</span>
+            <span id="summary-shipping">60 Kč</span>
+          </div>
+          <div class="os-divider"></div>
+          <div class="os-row os-total">
+            <strong>Celkem</strong>
+            <strong id="summary-total">-</strong>
+          </div>
+          <div class="os-row os-donation">
+            <span>🇺🇦 Z toho na Koridor.ua</span>
+            <strong id="summary-donation">-</strong>
+          </div>
+        </div>
+
+        <!-- Poznamka -->
         <div class="form-group">
           <label>Poznámka</label>
-          <textarea name="poznamka" rows="3" placeholder="Cokoli dalšího..."></textarea>
+          <textarea name="poznamka" rows="3" placeholder="Cokoli dalšího - způsob platby, dárkové balení, víc kusů atd."></textarea>
         </div>
+
         <div class="form-submit">
-          <button type="submit" class="btn-black large">Odeslat objednávku →</button>
+          <button type="submit" class="btn-black large" id="submit-btn">Odeslat objednávku →</button>
           <p class="form-alt">Nebo napiš přímo: <a href="mailto:adaklasek@gmail.com">adaklasek@gmail.com</a></p>
         </div>
+
       </form>
     </div>
   </section>

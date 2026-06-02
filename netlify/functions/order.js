@@ -50,7 +50,9 @@ function calcOrder(d) {
   const shipCost  = freeShip ? 0 : (doprava === 'zasilkovna' ? 60 : 89);
   const total     = subtotal + shipCost;
   const donated   = isBundle ? 200 : pocet * 100;
-  const vs        = Date.now().toString().slice(-8);
+  // VS format: YYMMDDXXXX - datum + 4 nahodne cislice (unikatni, datove dohledatelne)
+  const now = new Date();
+  const vs = `${String(now.getFullYear()).slice(-2)}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${String(Math.floor(1000 + Math.random()*9000))}`;
   return {
     jmeno:    d.jmeno || '',
     email:    d.email || '',
@@ -93,7 +95,7 @@ async function sendEmail(to, subject, html) {
 }
 
 function customerHtml(o) {
-  const bank = process.env.BANK_ACCOUNT || '[DOPLNIT UCET]';
+  const bank = process.env.BANK_ACCOUNT || '276477600/0300';
   return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafaf8">
 <div style="border-top:4px solid #0D0D0D;padding-top:20px;margin-bottom:20px">
   <h1 style="font-size:22px;margin:0 0 4px">Objednávka přijata ✓</h1>

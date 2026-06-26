@@ -69,12 +69,20 @@ function calcOrder(d) {
 }
 
 // ─── Email (Resend) ───────────────────────────────────────────────────────────
-function httpPost(hostname, path, headers, body) {
+function httpPost(hostname, path, headers, body, redirectCount = 0) {
   return new Promise((resolve, reject) => {
     const payload = typeof body === 'string' ? body : JSON.stringify(body);
     const req = https.request({ hostname, path, method: 'POST', headers: {
       ...headers, 'Content-Length': Buffer.byteLength(payload),
     }}, res => {
+      // Follow redirects (Comgate může přesměrovat)
+      if ((res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 307 || res.statusCode === 308) && res.headers.location && redirectCount < 3) {
+        const loc = res.headers.location;
+        console.log(`Comgate redirect ${res.statusCode} -> ${loc}`);
+        const url = new URL(loc);
+        resolve(httpPost(url.hostname, url.pathname + url.search, headers, body, redirectCount + 1));
+        return;
+      }
       let data = '';
       res.on('data', c => data += c);
       res.on('end', () => resolve({ status: res.statusCode, body: data }));

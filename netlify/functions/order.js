@@ -149,18 +149,17 @@ async function createComgatePayment(o) {
   const params = querystring.stringify({
     merchant,
     secret,
-    price:       o.total * 100, // Comgate používá haléře (100 hal = 1 Kč)
-    curr:        'CZK',
-    label:       o.nazev.substring(0, 16),
-    refId:       o.vs,
-    method:      'ALL',
-    email:       o.email,
-    name:        o.jmeno,
-    prepareOnly: 'true',
-    test:        isTest ? 'true' : 'false',
-    returnUrl:   'https://coffeeforua.cz/dekujeme.html',
-    cancelUrl:   'https://coffeeforua.cz/objednat',
-    notifUrl:    'https://coffeeforua.cz/.netlify/functions/comgate-webhook',
+    price:     o.total * 100, // Comgate používá haléře (100 hal = 1 Kč)
+    curr:      'CZK',
+    label:     o.nazev.substring(0, 16),
+    refId:     o.vs,
+    method:    'ALL',
+    email:     o.email,
+    name:      o.jmeno,
+    test:      isTest ? 'true' : 'false',
+    returnUrl: 'https://coffeeforua.cz/dekujeme.html',
+    cancelUrl: 'https://coffeeforua.cz/#objednat',
+    notifUrl:  'https://coffeeforua.cz/.netlify/functions/comgate-webhook',
   });
 
   const result = await httpPost(
@@ -172,11 +171,12 @@ async function createComgatePayment(o) {
 
   if (result.status === 200) {
     const parsed = querystring.parse(result.body);
-    if (parsed.code === '0' && parsed.redirect) {
-      return parsed.redirect;
+    if (parsed.code === '0' && parsed.transId) {
+      // Comgate vrací transId + redirect URL
+      return parsed.redirect || `https://payments.comgate.cz/client/instructions/index?id=${parsed.transId}`;
     }
   }
-  console.error('Comgate error:', result);
+  console.error('Comgate error:', result.status, result.body);
   return null;
 }
 

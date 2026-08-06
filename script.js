@@ -54,48 +54,53 @@ if (ticker) ticker.innerHTML += ticker.innerHTML;
 // ─── Packeta API key ──────────────────────────────────────────────────────────
 const PACKETA_API_KEY = '1e13f3ef06a99418';
 
-// ─── Cenový kalkulátor ────────────────────────────────────────────────────────
-const PRICES   = { etiopie: 340, costarica: 320, oba: 660 };
-const NAMES    = { etiopie: 'Ethiopia', costarica: 'Costa Rica', oba: 'Bundle (Ethiopia + Costa Rica)' };
+// ─── Košík ────────────────────────────────────────────────────────────────────
+const PRICES        = { etiopie: 340, costarica: 320, oba: 660 };
+const NAMES_SHORT   = { etiopie: 'Ethiopia', costarica: 'Costa Rica', oba: 'Bundle' };
 const SHIPPING_COST = { zasilkovna: 60, kuryr: 89 };
 
-function updateOrder() {
-  const kavaEl  = document.getElementById('kava');
-  const pocetEl = document.getElementById('pocet');
-  const qtyWrap = document.getElementById('qty-wrap');
-  const summary = document.getElementById('order-summary');
-  if (!kavaEl || !summary) return;
+const cart = { etiopie: 0, costarica: 0, oba: 0 };
 
-  const kava     = kavaEl.value;
-  const isBundle = kava === 'oba';
+function changeQty(key, delta) {
+  cart[key] = Math.max(0, (cart[key] || 0) + delta);
+  const qtyEl = document.getElementById('qty-' + key);
+  const inpEl = document.getElementById('inp-' + key);
+  const subEl = document.getElementById('sub-' + key);
+  const ciEl  = document.getElementById('ci-' + key);
+  if (qtyEl) qtyEl.textContent = cart[key];
+  if (inpEl) inpEl.value = cart[key];
+  if (subEl) subEl.textContent = cart[key] > 0 ? (PRICES[key] * cart[key]) + ' Kč' : '';
+  if (ciEl)  ciEl.classList.toggle('ci-active', cart[key] > 0);
+  updateCart();
+}
 
-  // Zobrazit/skryt počet (u bundlu skrýt)
-  if (qtyWrap) {
-    qtyWrap.style.display = isBundle ? 'none' : '';
-    if (pocetEl) {
-      pocetEl.required = !isBundle;
-      if (isBundle) pocetEl.value = '1';
-    }
+function updateCart() {
+  const summary   = document.getElementById('order-summary');
+  const emptyHint = document.getElementById('cart-empty-hint');
+  const subtotal  = Object.entries(cart).reduce((s, [k, v]) => s + PRICES[k] * v, 0);
+  // Počet balíčků pro dopravu zdarma (bundle = 2 balíčky)
+  const totalBags = cart.etiopie + cart.costarica + cart.oba * 2;
+  const donated   = (cart.etiopie + cart.costarica) * 100 + cart.oba * 200;
+  const freeShip  = totalBags >= 2;
+  const doprava   = document.getElementById('doprava')?.value || 'zasilkovna';
+  const shipCost  = freeShip ? 0 : (SHIPPING_COST[doprava] || 60);
+  const total     = subtotal + shipCost;
+  const isEmpty   = subtotal === 0;
+
+  if (emptyHint) emptyHint.style.display = 'none';
+  if (!summary) return;
+  summary.classList.toggle('active', !isEmpty);
+
+  if (!isEmpty) {
+    const lines = Object.entries(cart)
+      .filter(([, v]) => v > 0)
+      .map(([k, v]) => `${NAMES_SHORT[k]} ${v}×`);
+    document.getElementById('summary-product').textContent       = lines.join(', ');
+    document.getElementById('summary-product-price').textContent = subtotal + ' Kč';
+    document.getElementById('summary-shipping').textContent      = freeShip ? 'zdarma' : shipCost + ' Kč';
+    document.getElementById('summary-total').textContent         = total + ' Kč';
+    document.getElementById('summary-donation').textContent      = donated + ' Kč';
   }
-
-  if (!kava) { summary.classList.remove('active'); return; }
-
-  const pocet        = isBundle ? 1 : (parseInt(pocetEl?.value) || 1);
-  const pricePerUnit = PRICES[kava] || 0;
-  const productTotal = pricePerUnit * pocet;
-  const donated      = isBundle ? 200 : pocet * 100;
-  const freeShip     = pocet >= 2 || isBundle;
-  const doprava      = document.getElementById('doprava')?.value || 'zasilkovna';
-  const shipCost     = freeShip ? 0 : (SHIPPING_COST[doprava] || 60);
-  const total        = productTotal + shipCost;
-
-  const pocetLabel = isBundle ? '1 bundle' : `${pocet} ks`;
-  document.getElementById('summary-product').textContent      = `${NAMES[kava]} · ${pocetLabel}`;
-  document.getElementById('summary-product-price').textContent = `${productTotal} Kč`;
-  document.getElementById('summary-shipping').textContent      = freeShip ? 'zdarma' : `${shipCost} Kč`;
-  document.getElementById('summary-total').textContent         = `${total} Kč`;
-  document.getElementById('summary-donation').textContent      = `${donated} Kč`;
-  summary.classList.add('active');
 }
 
 // ─── Zásilkovna toggle ────────────────────────────────────────────────────────
@@ -144,6 +149,17 @@ if (form) {
     btn.disabled = true;
 
     try {
+      // Validace košíku
+      const totalItems = cart.etiopie + cart.costarica + cart.oba;
+      if (totalItems === 0) {
+        const hint = document.getElementById('cart-empty-hint');
+        if (hint) hint.style.display = '';
+        btn.textContent = orig;
+        btn.disabled = false;
+        document.getElementById('ci-etiopie')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
       const fd   = new FormData(form);
       const data = Object.fromEntries(fd.entries());
 

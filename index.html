@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Káva pro Ukrajinu - BRAVE BREW | 100 Kč z každého balíčku jde vojákům a na humanitární pomoc</title>
-  <meta name="description" content="Specialty káva na podporu Ukrajiny. Každý balíček = 100 Kč přímo Koridor.ua. Ethiopie a Costa Rica, světlá pražba, pražená v Opavě. Objednej kávu pro vojáky.">
+  <meta name="description" content="Specialty káva na podporu Ukrajiny. Každý balíček = 100 Kč přímo Koridor.ua. Ethiopia (světlá pražba) a Costa Rica (středně pražená), pražená v Opavě. Objednej kávu pro vojáky.">
   <meta name="keywords" content="káva pro Ukrajinu, káva na podporu Ukrajiny, káva pro vojáky, coffee for Ukraine, specialty káva, ethiopská káva, kostarická káva, BRAVE BREW, coffeeforua">
   <link rel="canonical" href="https://coffeeforua.cz/">
   <meta property="og:title" content="Káva pro Ukrajinu - BRAVE BREW">
@@ -119,7 +119,7 @@
     <div class="section-inner">
       <div class="section-header">
         <h2>Dvě kávy. Žádné výmluvy.</h2>
-        <p>Jedna z Afriky, druhá z Ameriky. Obě specialty. Obě světlá pražba. Obě s rovnou stovkou na Ukrajinu.</p>
+        <p>Jedna z Afriky, druhá z Ameriky. Obě specialty. Obě single origin. Obě s rovnou stovkou na Ukrajinu.</p>
       </div>
       <div class="kavy-grid">
 
@@ -150,7 +150,7 @@
             </div>
             <div class="kava-footer">
               <div class="kava-price">340 Kč</div>
-              <a href="#objednat" class="btn-black-sm" onclick="document.getElementById('kava').value='etiopie'">Objednat →</a>
+              <a href="#objednat" class="btn-black-sm" onclick="changeQty('etiopie',1)">Objednat →</a>
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@
         <div class="kava-card" id="costarica">
           <div class="kava-header cr-header">
             <div class="kava-header-top">
-              <span class="kava-roast-badge">LIGHT ROAST</span>
+              <span class="kava-roast-badge">MEDIUM ROAST</span>
               <span class="kava-weight">250 g</span>
             </div>
             <h3 class="kava-name">COSTA RICA</h3>
@@ -181,7 +181,7 @@
             </div>
             <div class="kava-footer">
               <div class="kava-price">320 Kč</div>
-              <a href="#objednat" class="btn-black-sm" onclick="document.getElementById('kava').value='costarica'">Objednat →</a>
+              <a href="#objednat" class="btn-black-sm" onclick="changeQty('costarica',1)">Objednat →</a>
             </div>
           </div>
         </div>
@@ -193,7 +193,7 @@
             <strong>Nechceš si vybírat? Správně.</strong>
             <span>Ethiopia + Costa Rica · 660 Kč · doprava zdarma · 200 Kč na Ukrajinu</span>
           </div>
-          <a href="#objednat" class="btn-yellow" onclick="document.getElementById('kava').value='oba'">Beru oboje →</a>
+          <a href="#objednat" class="btn-yellow" onclick="changeQty('oba',1)">Beru oboje →</a>
         </div>
       </div>
     </div>
@@ -402,26 +402,51 @@
           </div>
         </div>
 
-        <!-- Kava + pocet -->
-        <div class="form-row">
-          <div class="form-group">
-            <label>Výběr kávy *</label>
-            <select name="kava" id="kava" required onchange="updateOrder()">
-              <option value="">- Vyber kávu -</option>
-              <option value="etiopie">Ethiopia - 340 Kč / ks</option>
-              <option value="costarica">Costa Rica - 320 Kč / ks</option>
-              <option value="oba">Bundle: Ethiopia + Costa Rica - 660 Kč</option>
-            </select>
+        <!-- Košík -->
+        <div class="form-group">
+          <span class="cart-label">Výběr kávy *</span>
+          <div class="cart-items">
+            <div class="cart-item" id="ci-etiopie">
+              <div class="ci-info">
+                <strong class="ci-name">Ethiopia Single Origin 250g</strong>
+                <span class="ci-price">340 Kč / ks · světlá pražba</span>
+              </div>
+              <div class="ci-qty-ctrl">
+                <button type="button" class="ci-btn" onclick="changeQty('etiopie',-1)" aria-label="Méně">−</button>
+                <span class="ci-qty" id="qty-etiopie">0</span>
+                <button type="button" class="ci-btn" onclick="changeQty('etiopie',1)" aria-label="Více">+</button>
+              </div>
+              <span class="ci-subtotal" id="sub-etiopie"></span>
+              <input type="hidden" name="qty_etiopie" id="inp-etiopie" value="0">
+            </div>
+            <div class="cart-item" id="ci-costarica">
+              <div class="ci-info">
+                <strong class="ci-name">Costa Rica Single Origin 250g</strong>
+                <span class="ci-price">320 Kč / ks · středně pražená</span>
+              </div>
+              <div class="ci-qty-ctrl">
+                <button type="button" class="ci-btn" onclick="changeQty('costarica',-1)" aria-label="Méně">−</button>
+                <span class="ci-qty" id="qty-costarica">0</span>
+                <button type="button" class="ci-btn" onclick="changeQty('costarica',1)" aria-label="Více">+</button>
+              </div>
+              <span class="ci-subtotal" id="sub-costarica"></span>
+              <input type="hidden" name="qty_costarica" id="inp-costarica" value="0">
+            </div>
+            <div class="cart-item" id="ci-oba">
+              <div class="ci-info">
+                <strong class="ci-name">Bundle: Ethiopia + Costa Rica</strong>
+                <span class="ci-price">660 Kč / set · 2× 250g</span>
+              </div>
+              <div class="ci-qty-ctrl">
+                <button type="button" class="ci-btn" onclick="changeQty('oba',-1)" aria-label="Méně">−</button>
+                <span class="ci-qty" id="qty-oba">0</span>
+                <button type="button" class="ci-btn" onclick="changeQty('oba',1)" aria-label="Více">+</button>
+              </div>
+              <span class="ci-subtotal" id="sub-oba"></span>
+              <input type="hidden" name="qty_oba" id="inp-oba" value="0">
+            </div>
           </div>
-          <div class="form-group" id="qty-wrap">
-            <label>Počet *</label>
-            <select name="pocet" id="pocet" required onchange="updateOrder()">
-              <option value="1">1 ks</option>
-              <option value="2">2 ks - doprava zdarma</option>
-              <option value="3">3 ks - doprava zdarma</option>
-              <option value="4">4 a více ks - upřesni v poznámce</option>
-            </select>
-          </div>
+          <p class="cart-empty-hint" id="cart-empty-hint">Přidej aspoň jeden produkt.</p>
         </div>
 
         <!-- Telefon + doruceni -->
@@ -432,7 +457,7 @@
           </div>
           <div class="form-group">
             <label>Doručení</label>
-            <select name="doprava" id="doprava" onchange="togglePickup(this.value); updateOrder()">
+            <select name="doprava" id="doprava" onchange="togglePickup(this.value); updateCart()">
               <option value="zasilkovna">Zásilkovna - výdejní místo (60 Kč)</option>
               <option value="kuryr">Zásilkovna - kurýr na adresu (89 Kč)</option>
             </select>
@@ -500,7 +525,7 @@
     <div class="section-inner" style="padding: 3rem 2rem;">
       <h2 style="font-size:1.3rem; margin-bottom:1rem;">Káva pro Ukrajinu - přímá pomoc s každým douškem</h2>
       <p style="font-size:0.9rem; color:#555; line-height:1.8; max-width:760px;">
-        BRAVE BREW je česká značka specialty kávy na podporu Ukrajiny. Každý prodaný balíček znamená 100 Kč poslaných přímo organizaci Koridor.ua, která pomáhá vojákům a civilistům v přímém ohrožení. Nejde o procento ze zisku ani o marketingový slogan - jde o rovnou stovku z každého balíčku, bez výjimky. Káva pro Ukrajinu, která chutná stejně dobře jako pomáhá. Pražená v Opavě z etiopské a kostarické Arabicy, světlá pražba, dohledatelný původ. Pokud hledáš kávu pro vojáky, smysluplný dárek nebo prostě dobrou specialty kávu s přesahem, jsi na správném místě.
+        BRAVE BREW je česká značka specialty kávy na podporu Ukrajiny. Každý prodaný balíček znamená 100 Kč poslaných přímo organizaci Koridor.ua, která pomáhá vojákům a civilistům v přímém ohrožení. Nejde o procento ze zisku ani o marketingový slogan - jde o rovnou stovku z každého balíčku, bez výjimky. Káva pro Ukrajinu, která chutná stejně dobře jako pomáhá. Pražená v Opavě z etiopské (světlá pražba) a kostarické (středně pražená) Arabicy, single origin, dohledatelný původ. Pokud hledáš kávu pro vojáky, smysluplný dárek nebo prostě dobrou specialty kávu s přesahem, jsi na správném místě.
       </p>
     </div>
   </section>

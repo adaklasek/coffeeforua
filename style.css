@@ -540,6 +540,40 @@ input::placeholder, textarea::placeholder { color: var(--gray); font-weight: 400
 .os-donation span:first-child { color: var(--ua-blue) !important; }
 .os-donation strong { color: var(--ua-blue); }
 
+/* === KOSIK === */
+.cart-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray); margin-bottom: 0.5rem; display: block; }
+.cart-items { margin-bottom: 0.5rem; }
+.cart-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--gray-light);
+  border-radius: var(--radius);
+  margin-bottom: 0.5rem;
+  background: var(--cream);
+  transition: border-color 0.2s, background 0.2s;
+}
+.cart-item.ci-active { border-color: var(--black); background: var(--white); }
+.ci-info { flex: 1; min-width: 0; }
+.ci-name { font-size: 0.9rem; font-weight: 700; display: block; }
+.ci-price { font-size: 0.78rem; color: var(--gray); display: block; margin-top: 0.1rem; }
+.ci-qty-ctrl { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+.ci-btn {
+  width: 30px; height: 30px;
+  border: 2px solid var(--black);
+  background: transparent;
+  border-radius: 2px;
+  font-size: 1.1rem; font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; line-height: 1;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.ci-btn:hover { background: var(--black); color: var(--white); }
+.ci-qty { min-width: 1.4rem; text-align: center; font-weight: 700; font-size: 1rem; }
+.ci-subtotal { min-width: 64px; text-align: right; font-weight: 700; font-size: 0.88rem; color: var(--black); flex-shrink: 0; }
+.cart-empty-hint { font-size: 0.8rem; color: #c44; margin: 0.25rem 0 0.75rem; display: none; }
+
 /* === NAS PRIBEH === */
 .pribeh { background: var(--white); border-top: 1px solid rgba(13,13,13,0.06); }
 .pribeh-grid {

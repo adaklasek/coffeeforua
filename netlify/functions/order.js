@@ -23,6 +23,7 @@
 
 const https = require('https');
 const querystring = require('querystring');
+const QRCode = require('qrcode');
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 const PRICES = { etiopie: 340, costarica: 320, oba: 660 };
@@ -81,6 +82,30 @@ function calcOrder(d) {
   };
 }
 
+// ─── IBAN + QR platba ────────────────────────────────────────────────────────
+function bankToIBAN(account) {
+  // "276477600/0300" → "CZ02030000000276477600"
+  const [num, bank] = account.split('/');
+  const bban = bank + '000000' + num.padStart(10, '0');
+  const rearranged = bban + 'CZ00';
+  const numeric = rearranged.replace(/[A-Z]/g, c => (c.charCodeAt(0) - 55).toString());
+  let rem = 0;
+  for (const d of numeric) rem = (rem * 10 + parseInt(d)) % 97;
+  return 'CZ' + String(98 - rem).padStart(2, '0') + bban;
+}
+
+async function generatePaymentQR(iban, amount, vs) {
+  const spd = [
+    'SPD*1.0',
+    `ACC:${iban}`,
+    `AM:${amount}.00`,
+    'CC:CZK',
+    `X-VS:${vs}`,
+    'MSG:BRAVE BREW',
+  ].join('*');
+  return QRCode.toDataURL(spd, { errorCorrectionLevel: 'M', width: 220, margin: 1 });
+}
+
 // ─── HTTP helper ──────────────────────────────────────────────────────────────
 function httpPost(hostname, path, headers, body, redirectCount = 0) {
   return new Promise((resolve, reject) => {
@@ -119,8 +144,14 @@ function itemsTableRows(items) {
   ).join('');
 }
 
-function customerHtml(o) {
+function customerHtml(o, qrDataUrl) {
   const bank = process.env.BANK_ACCOUNT || '276477600/0300';
+  const qrBlock = qrDataUrl ? `
+<div style="text-align:center;margin:20px 0">
+  <p style="font-size:13px;color:#444;margin-bottom:8px">Nebo zaplaťte QR kódem - naskenujte mobilní bankou:</p>
+  <img src="${qrDataUrl}" width="180" height="180" alt="QR platba" style="border:1px solid #eee;border-radius:4px">
+  <p style="font-size:11px;color:#999;margin-top:6px">Částka, účet i VS jsou předvyplněny</p>
+</div>` : '';
   return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafaf8">
 <div style="border-top:4px solid #0D0D0D;padding-top:20px;margin-bottom:20px">
   <h1 style="font-size:22px;margin:0 0 4px">Objednávka přijata ✓</h1>
@@ -134,6 +165,7 @@ function customerHtml(o) {
   Variabilní symbol: <strong>${o.vs}</strong><br>
   Částka: <strong style="font-size:18px">${o.total} Kč</strong>
 </div>
+${qrBlock}
 <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">
   ${itemsTableRows(o.items)}
   <tr><td style="padding:8px 12px">Doprava</td><td style="padding:8px 12px;text-align:right">${o.doprava === 'zasilkovna' ? 'Zásilkovna - výdejní místo' : 'Zásilkovna - kurýr'}${o.vydejna ? ` (${o.vydejna})` : ''} ${o.shipCost === 0 ? '· zdarma' : `· ${o.shipCost} Kč`}</td></tr>
@@ -254,6 +286,16 @@ exports.handler = async (event) => {
 
   console.log(`Order: ${o.jmeno} - ${o.nazev} - ${o.total} Kc`);
 
+  // Generovat QR kód pro platbu
+  const bank = process.env.BANK_ACCOUNT || '276477600/0300';
+  let qrDataUrl = null;
+  try {
+    const iban = bankToIBAN(bank);
+    qrDataUrl = await generatePaymentQR(iban, o.total, o.vs);
+  } catch (err) {
+    console.warn('QR generation failed:', err.message);
+  }
+
   await Promise.allSettled([
     sendEmail('adaklasek@gmail.com', `Nova objednavka: ${o.jmeno} - ${o.total} Kc`, adminHtml(o)),
     createInvoice(o),
@@ -265,6 +307,6 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true, paymentUrl }) };
   }
 
-  await sendEmail(o.email, `Objednávka přijata - BRAVE BREW (${o.total} Kč)`, customerHtml(o));
+  await sendEmail(o.email, `Objednávka přijata - BRAVE BREW (${o.total} Kč)`, customerHtml(o, qrDataUrl));
   return { statusCode: 200, headers, body: JSON.stringify({ ok: true, paymentUrl: null }) };
 };

@@ -2,3 +2,4 @@
 logo dark.png
 *.zip
 .claude/
+node_modules/

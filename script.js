@@ -20,7 +20,7 @@ function animateCount(el, target, suffix = '') {
 }
 
 // Update these numbers as orders come in
-const BAGS = 0;
+const BAGS = 13;
 const KC = BAGS * 100;
 
 const els = {

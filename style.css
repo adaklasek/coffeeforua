@@ -574,6 +574,22 @@ input::placeholder, textarea::placeholder { color: var(--gray); font-weight: 400
 .ci-subtotal { min-width: 64px; text-align: right; font-weight: 700; font-size: 0.88rem; color: var(--black); flex-shrink: 0; }
 .cart-empty-hint { font-size: 0.8rem; color: #c44; margin: 0.25rem 0 0.75rem; display: none; }
 
+/* === VÝBĚR PLATBY === */
+.platba-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+.platba-opt {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--gray-light);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  background: var(--cream);
+}
+.platba-opt:has(input:checked) { border-color: var(--black); background: var(--white); }
+.platba-opt input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: var(--black); width: auto; }
+.platba-opt-body strong { display: block; font-size: 0.9rem; font-weight: 700; }
+.platba-opt-body span { font-size: 0.78rem; color: var(--gray); display: block; margin-top: 0.15rem; }
+
 /* === NAS PRIBEH === */
 .pribeh { background: var(--white); border-top: 1px solid rgba(13,13,13,0.06); }
 .pribeh-grid {

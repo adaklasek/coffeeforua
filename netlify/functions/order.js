@@ -76,6 +76,7 @@ function calcOrder(d) {
     vydejna:  d.vydejna  || '',
     adresa:   d.adresa   || '',
     poznamka: d.poznamka || '',
+    platba:   d.platba === 'prevod' ? 'prevod' : 'karta',
     items, qty, subtotal, shipCost, total, donated, vs, nazev,
     date: now.toLocaleDateString('cs-CZ'),
     time: now.toLocaleTimeString('cs-CZ'),
@@ -301,12 +302,14 @@ exports.handler = async (event) => {
     createInvoice(o),
   ]);
 
-  const paymentUrl = await createComgatePayment(o);
+  // Comgate pouze pokud zákazník zvolil kartu
+  const paymentUrl = o.platba === 'karta' ? await createComgatePayment(o) : null;
 
   if (paymentUrl) {
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true, paymentUrl }) };
   }
 
+  // Bankovní převod - odeslat email s instrukcemi a QR kódem
   await sendEmail(o.email, `Objednávka přijata - BRAVE BREW (${o.total} Kč)`, customerHtml(o, qrDataUrl));
   return { statusCode: 200, headers, body: JSON.stringify({ ok: true, paymentUrl: null }) };
 };

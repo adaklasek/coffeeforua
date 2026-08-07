@@ -103,6 +103,13 @@ function updateCart() {
   }
 }
 
+// ─── Výběr způsobu platby ─────────────────────────────────────────────────────
+function updatePaymentBtn() {
+  const platba = document.querySelector('input[name="platba"]:checked')?.value;
+  const btn = document.getElementById('submit-btn');
+  if (btn) btn.textContent = platba === 'prevod' ? 'Odeslat objednávku →' : 'Zaplatit kartou →';
+}
+
 // ─── Zásilkovna toggle ────────────────────────────────────────────────────────
 function togglePickup(val) {
   const pickupWrap   = document.getElementById('pickup-wrap');

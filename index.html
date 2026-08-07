@@ -386,7 +386,7 @@
       <div class="section-header">
         <span class="section-eyebrow">Objednávka</span>
         <h2>Stačí vyplnit.<br>Zbytek je na nás.</h2>
-        <p class="form-note-top">Formulář → platební instrukce mailem → převod → káva u tebe do 3 dnů. Žádná registrace, žádný účet.</p>
+        <p class="form-note-top">Formulář → vyber platbu → káva u tebe do 3 dnů. Žádná registrace, žádný účet.</p>
       </div>
       <form class="order-form" id="order-form" action="/.netlify/functions/order" method="POST">
 
@@ -505,14 +505,35 @@
           </div>
         </div>
 
+        <!-- Způsob platby -->
+        <div class="form-group">
+          <label>Způsob platby</label>
+          <div class="platba-opts">
+            <label class="platba-opt">
+              <input type="radio" name="platba" value="karta" checked onchange="updatePaymentBtn()">
+              <div class="platba-opt-body">
+                <strong>Platební kartou</strong>
+                <span>Visa, Mastercard, Apple Pay · přesměrování na platební bránu Comgate</span>
+              </div>
+            </label>
+            <label class="platba-opt">
+              <input type="radio" name="platba" value="prevod" onchange="updatePaymentBtn()">
+              <div class="platba-opt-body">
+                <strong>Bankovním převodem + QR kód</strong>
+                <span>Platební instrukce a QR kód přijdou na email · expedice po přijetí platby</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <!-- Poznamka -->
         <div class="form-group">
           <label>Poznámka</label>
-          <textarea name="poznamka" rows="3" placeholder="Cokoli dalšího - způsob platby, dárkové balení, víc kusů atd."></textarea>
+          <textarea name="poznamka" rows="2" placeholder="Dárkové balení, speciální přání..."></textarea>
         </div>
 
         <div class="form-submit">
-          <button type="submit" class="btn-black large" id="submit-btn">Odeslat objednávku →</button>
+          <button type="submit" class="btn-black large" id="submit-btn">Zaplatit kartou →</button>
           <p class="form-alt">Nebo napiš přímo: <a href="mailto:info@coffeeforua.cz">info@coffeeforua.cz</a></p>
         </div>
 

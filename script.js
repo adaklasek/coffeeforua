@@ -19,8 +19,8 @@ function animateCount(el, target, suffix = '') {
   requestAnimationFrame(tick);
 }
 
-// Update these numbers as orders come in
-const BAGS = 13;
+// Update manually as orders come in, or connect to Google Sheets
+const BAGS = 0;
 const KC = BAGS * 100;
 
 const els = {
@@ -196,7 +196,8 @@ if (form) {
     } catch {
       btn.textContent = orig;
       btn.disabled    = false;
-      alert('Nepodařilo se odeslat. Napiš přímo na adaklasek@gmail.com');
+      const errEl = document.getElementById('form-error');
+      if (errEl) errEl.style.display = '';
     }
   });
 }

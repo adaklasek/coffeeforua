@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doprava a platba | BRAVE BREW</title>
+  <meta name="description" content="Informace o dopravě, způsobech platby a kontaktní údaje k platební bráně Comgate pro coffeeforua.cz.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .lp-hero {
+      background: var(--black);
+      color: var(--white);
+      padding: 6rem 2rem 3rem;
+    }
+    .lp-hero-inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .lp-breadcrumb {
+      font-size: 0.78rem;
+      color: rgba(250,250,247,0.35);
+      margin-bottom: 1rem;
+      letter-spacing: 0.04em;
+    }
+    .lp-breadcrumb a {
+      color: rgba(250,250,247,0.4);
+      text-decoration: none;
+    }
+    .lp-hero h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .lp-hero p {
+      color: rgba(250,250,247,0.45);
+      font-size: 1rem;
+    }
+    .lp-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3.5rem 2rem 4rem;
+    }
+    .lp-section {
+      margin-bottom: 3.5rem;
+    }
+    .lp-section h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--black);
+      margin-bottom: 1.5rem;
+    }
+    .lp-section h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 2rem 0 0.5rem;
+    }
+    .lp-section h3:first-of-type {
+      margin-top: 0;
+    }
+    .lp-section p {
+      line-height: 1.75;
+      color: #444;
+      margin: 0.5rem 0;
+      font-size: 0.95rem;
+    }
+    .lp-section a {
+      color: var(--black);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .lp-card {
+      background: #F5F0E8;
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      margin: 1rem 0;
+    }
+    .lp-card strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+    .lp-card p {
+      margin: 0;
+    }
+    .lp-logos {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .lp-logos svg {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
+    .lp-logos a {
+      text-decoration: none;
+      display: flex;
+    }
+    .lp-hint {
+      font-size: 0.82rem;
+      color: #888;
+      margin-top: 0.75rem !important;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .lp-back {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e5e5;
+      font-size: 0.88rem;
+    }
+    .lp-back a {
+      color: #666;
+      margin-right: 1.5rem;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    @media (max-width: 600px) {
+      .contact-grid { grid-template-columns: 1fr; }
+      .lp-hero { padding-top: 5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">
+        <img src="logo-dark.png" alt="Brave Brew" class="logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="logo-fallback">BB</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/#kavy">Kávy</a></li>
+        <li><a href="/#proc">Proč BB</a></li>
+        <li><a href="/#pribeh">Příběh</a></li>
+        <li><a href="/#dopad">Dopad</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+        <li><a href="/#objednat" class="nav-cta">Koupit kávu →</a></li>
+      </ul>
+      <button class="nav-burger" onclick="this.classList.toggle('open');document.querySelector('.nav-links').classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="lp-hero">
+    <div class="lp-hero-inner">
+      <p class="lp-breadcrumb"><a href="/">coffeeforua.cz</a> / Doprava a platba</p>
+      <h1>Doprava<br>a platba</h1>
+      <p>Vše o doručení a platebních metodách.</p>
+    </div>
+  </div>
+
+  <div class="lp-content">
+
+    <!-- DOPRAVA -->
+    <div class="lp-section">
+      <h2>Doprava</h2>
+      <div class="lp-card">
+        <strong>Zásilkovna - výdejní místo · 60 Kč</strong>
+        <p>Doručení na libovolné výdejní místo Zásilkovny po celé ČR. Výdejní místo si vyberete přímo v objednávkovém formuláři.</p>
+      </div>
+      <div class="lp-card">
+        <strong>Zásilkovna - kurýr na adresu · 89 Kč</strong>
+        <p>Doručení přenosným kurýrem přímo na vaši doručovací adresu.</p>
+      </div>
+      <p class="lp-hint">Doprava je zdarma při objednávce 2 a více balíčků. Expedujeme do 1-2 pracovních dnů po obdržení platby.</p>
+    </div>
+
+    <!-- PLATBY -->
+    <div class="lp-section">
+      <h2>Způsoby platby</h2>
+
+      <h3>Platba kartou</h3>
+      <p>Platby kartou (Visa, Mastercard, Apple Pay) zprostředkovává platební brána <strong><a href="https://www.comgate.eu/cs/platebni-brana" target="_blank" rel="noopener">Comgate, a.s.</a></strong></p>
+      <p>Po odeslání objednávky budete přesměrováni na zabezpečenou platební bránu Comgate. Platba je zpracována okamžitě. Po úspěšném zaplacení obdržíte potvrzení emailem a objednávku ihned expedujeme.</p>
+      <div class="lp-logos">
+        <!-- VISA -->
+        <svg viewBox="0 0 54 34" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Visa">
+          <rect width="54" height="34" rx="4" fill="#1A1F71"/>
+          <text x="27" y="23" font-family="Arial,sans-serif" font-weight="bold" font-size="17" fill="white" text-anchor="middle" letter-spacing="1">VISA</text>
+        </svg>
+        <!-- Mastercard -->
+        <svg viewBox="0 0 60 38" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mastercard">
+          <rect width="60" height="38" rx="4" fill="#252525"/>
+          <circle cx="23" cy="19" r="11" fill="#EB001B"/>
+          <circle cx="37" cy="19" r="11" fill="#F79E1B"/>
+          <path d="M30 10.51 A11 11 0 0 0 30 27.49 A11 11 0 0 1 30 10.51Z" fill="#FF5F00"/>
+        </svg>
+        <!-- Comgate -->
+        <a href="https://www.comgate.eu/cs/platebni-brana" target="_blank" rel="noopener">
+          <svg viewBox="0 0 100 34" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comgate - platební brána">
+            <rect width="100" height="34" rx="4" fill="#0088cc"/>
+            <text x="50" y="22" font-family="Arial,sans-serif" font-weight="bold" font-size="13" fill="white" text-anchor="middle">comgate</text>
+          </svg>
+        </a>
+      </div>
+      <p class="lp-hint">Více o kartových platbách: <a href="https://help.comgate.cz/v1/docs/cs/platby-kartou" target="_blank" rel="noopener">help.comgate.cz ↗</a></p>
+
+      <h3>Bankovní převod + QR kód</h3>
+      <p>Po odeslání objednávky obdržíte email s platebními instrukcemi, variabilním symbolem a QR kódem pro snadné zaplacení mobilní bankou. Objednávku expedujeme po přijetí platby na náš účet.</p>
+      <div class="lp-card">
+        <strong>Bankovní spojení</strong>
+        <p>
+          Číslo účtu: <strong>276477600/0300</strong><br>
+          IBAN: <strong>CZ02 0300 0000 0002 7647 7600</strong><br>
+          Variabilní symbol: vygenerován automaticky s každou objednávkou
+        </p>
+      </div>
+      <p class="lp-hint">Více o bankovních platbách: <a href="https://help.comgate.cz/docs/bankovni-prevody" target="_blank" rel="noopener">help.comgate.cz ↗</a></p>
+    </div>
+
+    <!-- COMGATE KONTAKT -->
+    <div class="lp-section">
+      <h2>Reklamace a dotazy k platbám</h2>
+      <p>V případě problémů s platbou nebo reklamace kartové transakce kontaktujte přímo provozovatele platební brány:</p>
+      <div class="lp-card">
+        <strong>Comgate, a.s.</strong>
+        <p>
+          Gočárova třída 1754/48b, 500 02 Hradec Králové<br>
+          E-mail: <a href="mailto:podpora@comgate.cz">podpora@comgate.cz</a><br>
+          Tel: <a href="tel:+420228224267">+420 228 224 267</a><br>
+          Web: <a href="https://www.comgate.eu/cs/platebni-brana" target="_blank" rel="noopener">comgate.eu ↗</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- PRODEJCE KONTAKT -->
+    <div class="lp-section">
+      <h2>Kontakt na prodávajícího</h2>
+      <p>Pro dotazy k objednávkám a doručení:</p>
+      <div class="contact-grid">
+        <div class="lp-card">
+          <strong>Adam Klásek</strong>
+          <p>
+            Coffee for UA / BRAVE BREW<br>
+            IČ: 09422668<br>
+            Holčovická 313, 747 81 Otice
+          </p>
+        </div>
+        <div class="lp-card">
+          <strong>Kontakt</strong>
+          <p>
+            <a href="mailto:info@coffeeforua.cz">info@coffeeforua.cz</a><br>
+            <a href="tel:+420702660542">+420 702 660 542</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lp-back">
+      <a href="vop.html">Obchodní podmínky</a>
+      <a href="/">Zpět na hlavní stránku</a>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-ua-bar">
+      <div class="ua-line blue"></div>
+      <div class="ua-line yellow"></div>
+    </div>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="logo-dark.png" alt="Brave Brew" class="footer-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <div class="footer-bb-fallback" style="display:none">BB</div>
+        <p class="footer-claim">BREW GOOD. DO BRAVE.</p>
+        <p class="footer-by">by Coffee for UA</p>
+      </div>
+      <div class="footer-col">
+        <h5>Kontakt</h5>
+        <p><a href="mailto:info@coffeeforua.cz">info@coffeeforua.cz</a></p>
+        <p><a href="tel:+420702660542">+420 702 660 542</a></p>
+      </div>
+      <div class="footer-col">
+        <h5>Partneři</h5>
+        <p>Mise: <a href="https://koridorua.cz" target="_blank">Koridor.ua</a></p>
+        <p>Doprava: Zásilkovna</p>
+        <p>Platby: <a href="https://www.comgate.eu/cs/platebni-brana" target="_blank" rel="noopener">Comgate</a></p>
+      </div>
+      <div class="footer-col">
+        <h5>Web</h5>
+        <ul>
+          <li><a href="/#kavy">Kávy</a></li>
+          <li><a href="/#dopad">Dopad</a></li>
+          <li><a href="/#objednat">Objednat</a></li>
+          <li><a href="platba.html">Doprava a platba</a></li>
+          <li><a href="vop.html">Obchodní podmínky</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Sociální sítě</h5>
+        <p><a href="https://instagram.com/bravebrew.cz" target="_blank">Instagram @bravebrew.cz ↗</a></p>
+      </div>
+    </div>
+    <div class="footer-payment-strip">
+      <span class="fps-label">Platební metody</span>
+      <div class="fps-logos">
+        <svg viewBox="0 0 54 34" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Visa">
+          <rect width="54" height="34" rx="4" fill="#1A1F71"/>
+          <text x="27" y="23" font-family="Arial,sans-serif" font-weight="bold" font-size="17" fill="white" text-anchor="middle" letter-spacing="1">VISA</text>
+        </svg>
+        <svg viewBox="0 0 60 38" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mastercard">
+          <rect width="60" height="38" rx="4" fill="#252525"/>
+          <circle cx="23" cy="19" r="11" fill="#EB001B"/>
+          <circle cx="37" cy="19" r="11" fill="#F79E1B"/>
+          <path d="M30 10.51 A11 11 0 0 0 30 27.49 A11 11 0 0 1 30 10.51Z" fill="#FF5F00"/>
+        </svg>
+        <a href="https://www.comgate.eu/cs/platebni-brana" target="_blank" rel="noopener">
+          <svg viewBox="0 0 100 34" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comgate">
+            <rect width="100" height="34" rx="4" fill="#0088cc"/>
+            <text x="50" y="22" font-family="Arial,sans-serif" font-weight="bold" font-size="13" fill="white" text-anchor="middle">comgate</text>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Coffee for UA · <a href="mailto:info@coffeeforua.cz">info@coffeeforua.cz</a> · <a href="platba.html">Doprava a platba</a> · <a href="vop.html">Obchodní podmínky</a> · <a href="vop.html#gdpr">Ochrana osobních údajů</a></p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

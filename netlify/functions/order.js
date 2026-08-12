@@ -264,6 +264,35 @@ async function createInvoice(o) {
   );
 }
 
+// ─── Google Sheets logging (via Apps Script web app) ─────────────────────────
+// Setup: viz instrukce v README nebo v odpovědi od Clauda.
+// Env var: GSHEET_WEBHOOK = URL vašeho deploynutého Apps Script web app
+async function logToSheet(o) {
+  const webhookUrl = process.env.GSHEET_WEBHOOK;
+  if (!webhookUrl) return;
+  try {
+    const url = new URL(webhookUrl);
+    const payload = JSON.stringify({
+      datum:    o.date + ' ' + o.time,
+      jmeno:    o.jmeno,
+      email:    o.email,
+      telefon:  o.telefon,
+      produkty: o.items.map(i => `${NAMES_SHORT[i.kava]} ${i.pocet}x`).join(' + '),
+      celkem:   o.total,
+      platba:   o.platba,
+      doruceni: o.doprava + (o.vydejna ? ` - ${o.vydejna}` : '') + (o.adresa ? ` - ${o.adresa}` : ''),
+      vs:       o.vs,
+      poznamka: o.poznamka,
+    });
+    await httpPost(url.hostname, url.pathname + url.search,
+      { 'Content-Type': 'application/json' },
+      payload
+    );
+  } catch (err) {
+    console.warn('Sheet log failed:', err.message);
+  }
+}
+
 // ─── Handler ──────────────────────────────────────────────────────────────────
 exports.handler = async (event) => {
   const headers = {
@@ -300,6 +329,7 @@ exports.handler = async (event) => {
   await Promise.allSettled([
     sendEmail('adaklasek@gmail.com', `Nova objednavka: ${o.jmeno} - ${o.total} Kc`, adminHtml(o)),
     createInvoice(o),
+    logToSheet(o),
   ]);
 
   // Comgate pouze pokud zákazník zvolil kartu

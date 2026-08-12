@@ -672,3 +672,34 @@ footer { background: var(--black); }
   .dopad-counter-block { flex-direction: column; gap: 1.5rem; }
   .dc-divider { display: none; }
 }
+
+/* === FOOTER PAYMENT LOGOS === */
+.footer-payment-strip {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 1rem 2rem;
+  max-width: 1140px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+.fps-label {
+  font-size: 0.7rem;
+  color: rgba(250,250,247,0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.fps-logos {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.fps-logos svg {
+  height: 24px;
+  width: auto;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.fps-logos a { display: flex; }
+.fps-logos a:hover svg { opacity: 1; }

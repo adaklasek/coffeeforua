@@ -108,15 +108,23 @@ async function generatePaymentQR(iban, amount, vs) {
 }
 
 // ─── HTTP helper ──────────────────────────────────────────────────────────────
-function httpPost(hostname, path, headers, body, redirectCount = 0) {
+function httpRequest(method, hostname, path, headers, body, redirectCount = 0) {
   return new Promise((resolve, reject) => {
-    const payload = typeof body === 'string' ? body : JSON.stringify(body);
-    const req = https.request({ hostname, path, method: 'POST', headers: {
-      ...headers, 'Content-Length': Buffer.byteLength(payload),
-    }}, res => {
+    const payload = body ? (typeof body === 'string' ? body : JSON.stringify(body)) : '';
+    const reqHeaders = payload
+      ? { ...headers, 'Content-Length': Buffer.byteLength(payload) }
+      : headers;
+    const req = https.request({ hostname, path, method, headers: reqHeaders }, res => {
+      // 303 = See Other → follow as GET without body
+      if (res.statusCode === 303 && res.headers.location && redirectCount < 3) {
+        const url = new URL(res.headers.location);
+        resolve(httpRequest('GET', url.hostname, url.pathname + url.search, {}, null, redirectCount + 1));
+        return;
+      }
+      // Other redirects → repeat same method
       if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location && redirectCount < 3) {
         const url = new URL(res.headers.location);
-        resolve(httpPost(url.hostname, url.pathname + url.search, headers, body, redirectCount + 1));
+        resolve(httpRequest(method, url.hostname, url.pathname + url.search, headers, body, redirectCount + 1));
         return;
       }
       let data = '';
@@ -124,9 +132,13 @@ function httpPost(hostname, path, headers, body, redirectCount = 0) {
       res.on('end', () => resolve({ status: res.statusCode, body: data }));
     });
     req.on('error', reject);
-    req.write(payload);
+    if (payload) req.write(payload);
     req.end();
   });
+}
+
+function httpPost(hostname, path, headers, body) {
+  return httpRequest('POST', hostname, path, headers, body);
 }
 
 // ─── Email (Resend) ───────────────────────────────────────────────────────────

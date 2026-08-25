@@ -332,6 +332,17 @@ nav.scrolled {
 }
 .kava-sub { font-size: 0.72rem; color: rgba(250,250,247,0.35); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
 
+.kava-img-wrap {
+  background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem 1rem 0.5rem;
+  border-top: 2px solid var(--black);
+}
+.kava-product-img {
+  width: 100%; max-width: 260px; height: 280px;
+  object-fit: contain; display: block;
+}
+
 .kava-body { padding: 1.75rem 2rem 2rem; background: var(--white); }
 
 .taste-block { margin-bottom: 1.25rem; }

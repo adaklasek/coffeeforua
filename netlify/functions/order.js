@@ -227,14 +227,13 @@ async function createComgatePayment(o) {
     params
   );
 
-  if (result.status === 200) {
-    const parsed = querystring.parse(result.body);
-    if (parsed.code === '0' && parsed.transId) {
-      return parsed.redirect || `https://payments.comgate.cz/client/instructions/index?id=${parsed.transId}`;
-    }
+  const parsed = result.status === 200 ? querystring.parse(result.body) : {};
+  console.log('Comgate response:', result.status, result.body);
+  if (parsed.code === '0' && parsed.transId) {
+    return parsed.redirect || `https://payments.comgate.cz/client/instructions/index?id=${parsed.transId}`;
   }
-  console.error('Comgate error:', result.status, result.body);
-  return null;
+  console.error('Comgate error code:', parsed.code, 'message:', parsed.message);
+  return { error: true, code: parsed.code, message: parsed.message, httpStatus: result.status };
 }
 
 // ─── Fakturoid ────────────────────────────────────────────────────────────────
@@ -340,8 +339,14 @@ exports.handler = async (event) => {
     if (!hasCreds) {
       comgateError = 'missing_credentials';
     } else {
-      paymentUrl = await createComgatePayment(o);
-      if (!paymentUrl) comgateError = 'api_error';
+      const cgResult = await createComgatePayment(o);
+      if (typeof cgResult === 'string') {
+        paymentUrl = cgResult;
+      } else if (cgResult?.error) {
+        comgateError = `api_error: code=${cgResult.code} msg=${cgResult.message} http=${cgResult.httpStatus}`;
+      } else {
+        comgateError = 'api_error';
+      }
     }
   }
 
@@ -350,7 +355,7 @@ exports.handler = async (event) => {
   }
 
   if (o.platba === 'karta' && comgateError) {
-    return { statusCode: 502, headers, body: JSON.stringify({ error: 'payment_gateway_error', detail: comgateError }) };
+    return { statusCode: 502, headers, body: JSON.stringify({ error: 'payment_gateway_error', detail: comgateError, merchant: process.env.COMGATE_MERCHANT?.slice(0,3) + '***' }) };
   }
 
   // Bankovní převod - odeslat email s instrukcemi a QR kódem

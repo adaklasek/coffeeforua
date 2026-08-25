@@ -114,10 +114,10 @@ function httpPost(hostname, path, headers, body) {
     const req = https.request({ hostname, path, method: 'POST', headers: {
       ...headers, 'Content-Length': Buffer.byteLength(payload),
     }}, res => {
-      // 303 = Comgate vraci Location jako platební URL - nezpracovávat tělo
-      if (res.statusCode === 303 && res.headers.location) {
+      // 3xx redirect = Comgate vraci Location jako platební URL
+      if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
         res.resume();
-        resolve({ status: 303, body: '', location: res.headers.location });
+        resolve({ status: res.statusCode, body: '', location: res.headers.location });
         return;
       }
       let data = '';
@@ -230,8 +230,8 @@ async function createComgatePayment(o) {
 
   console.log('Comgate response status:', result.status, 'location:', result.location, 'body:', result.body.slice(0, 200));
 
-  // 303 redirect = Comgate přesměrovává přímo na platební stránku
-  if (result.status === 303 && result.location) {
+  // 3xx redirect = Comgate přesměrovává přímo na platební stránku
+  if ([301, 302, 303, 307, 308].includes(result.status) && result.location) {
     return result.location;
   }
 

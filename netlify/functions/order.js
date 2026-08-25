@@ -239,13 +239,17 @@ async function createComgatePayment(o) {
     params
   );
 
-  const parsed = result.status === 200 ? querystring.parse(result.body) : {};
-  console.log('Comgate response:', result.status, result.body);
+  console.log('Comgate response status:', result.status, 'body:', result.body.slice(0, 500));
+  if (result.status !== 200) {
+    return { error: true, code: null, message: `http_${result.status}`, httpStatus: result.status };
+  }
+  // Comgate vraci application/x-www-form-urlencoded
+  const parsed = querystring.parse(result.body);
   if (parsed.code === '0' && parsed.transId) {
     return parsed.redirect || `https://payments.comgate.cz/client/instructions/index?id=${parsed.transId}`;
   }
-  console.error('Comgate error code:', parsed.code, 'message:', parsed.message);
-  return { error: true, code: parsed.code, message: parsed.message, httpStatus: result.status };
+  console.error('Comgate parsed:', JSON.stringify(parsed));
+  return { error: true, code: parsed.code, message: parsed.message, body: result.body.slice(0, 200), httpStatus: result.status };
 }
 
 // ─── Fakturoid ────────────────────────────────────────────────────────────────
@@ -355,7 +359,7 @@ exports.handler = async (event) => {
       if (typeof cgResult === 'string') {
         paymentUrl = cgResult;
       } else if (cgResult?.error) {
-        comgateError = `api_error: code=${cgResult.code} msg=${cgResult.message} http=${cgResult.httpStatus}`;
+        comgateError = `api_error: code=${cgResult.code} msg=${cgResult.message} http=${cgResult.httpStatus} body=${cgResult.body}`;
       } else {
         comgateError = 'api_error';
       }

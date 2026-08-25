@@ -333,13 +333,27 @@ exports.handler = async (event) => {
   ]);
 
   // Comgate pouze pokud zákazník zvolil kartu
-  const paymentUrl = o.platba === 'karta' ? await createComgatePayment(o) : null;
+  let paymentUrl = null;
+  let comgateError = null;
+  if (o.platba === 'karta') {
+    const hasCreds = !!(process.env.COMGATE_MERCHANT && process.env.COMGATE_SECRET);
+    if (!hasCreds) {
+      comgateError = 'missing_credentials';
+    } else {
+      paymentUrl = await createComgatePayment(o);
+      if (!paymentUrl) comgateError = 'api_error';
+    }
+  }
 
   if (paymentUrl) {
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true, paymentUrl }) };
   }
 
+  if (o.platba === 'karta' && comgateError) {
+    return { statusCode: 502, headers, body: JSON.stringify({ error: 'payment_gateway_error', detail: comgateError }) };
+  }
+
   // Bankovní převod - odeslat email s instrukcemi a QR kódem
   await sendEmail(o.email, `Objednávka přijata - BRAVE BREW (${o.total} Kč)`, customerHtml(o, qrDataUrl));
-  return { statusCode: 200, headers, body: JSON.stringify({ ok: true, paymentUrl: null }) };
+  return { statusCode: 200, headers, body: JSON.stringify({ ok: true, paymentUrl: null, qrDataUrl, vs: o.vs, total: o.total }) };
 };

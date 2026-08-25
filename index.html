@@ -459,8 +459,8 @@
         <!-- Telefon + doruceni -->
         <div class="form-row">
           <div class="form-group">
-            <label>Telefon</label>
-            <input type="tel" name="telefon" placeholder="+420 777 123 456">
+            <label>Telefon *</label>
+            <input type="tel" name="telefon" required placeholder="+420 777 123 456">
           </div>
           <div class="form-group">
             <label>Doručení</label>
@@ -543,6 +543,13 @@
           <button type="submit" class="btn-black large" id="submit-btn">Zaplatit kartou →</button>
           <p id="form-error" style="display:none;color:#c0392b;font-size:0.9rem;margin-top:0.75rem">Nepodařilo se odeslat. Napiš přímo na <a href="mailto:info@coffeeforua.cz">info@coffeeforua.cz</a>.</p>
           <p class="form-alt">Nebo napiš přímo: <a href="mailto:info@coffeeforua.cz">info@coffeeforua.cz</a></p>
+        </div>
+
+        <div id="qr-block" style="display:none;margin-top:1.5rem;padding:1.5rem;border:2px solid #FFD500;border-radius:6px;text-align:center;background:#fffdf0">
+          <p style="font-weight:700;margin:0 0 0.5rem">Platba převodem</p>
+          <p style="font-size:0.88rem;color:#555;margin:0 0 1rem">Číslo účtu: <strong>276477600/0300</strong> &nbsp;·&nbsp; VS: <strong id="qr-vs"></strong> &nbsp;·&nbsp; Částka: <strong id="qr-total"></strong></p>
+          <img id="qr-img" src="" width="200" height="200" alt="QR platba" style="border:1px solid #eee;border-radius:4px;display:block;margin:0 auto 0.75rem">
+          <p style="font-size:0.8rem;color:#888;margin:0">Naskenuj QR kódem v mobilní bance · všechny údaje jsou předvyplněny</p>
         </div>
 
       </form>

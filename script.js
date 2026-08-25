@@ -176,28 +176,48 @@ if (form) {
         body: JSON.stringify(data),
       });
 
-      const json = res.ok ? await res.json().catch(() => null) : null;
+      const json = await res.json().catch(() => null);
+      const platbaVal = data.platba || 'karta';
 
       if (json?.paymentUrl) {
         // Přesměrovat na Comgate platební bránu
         window.location.href = json.paymentUrl;
-      } else if (res.ok) {
-        // Fallback: platba převodem - platební instrukce přijdou emailem
-        btn.textContent       = '✓ Odesláno - platební instrukce dorazí do emailu.';
+      } else if (res.ok && platbaVal !== 'karta') {
+        // Bankovní převod - instrukce přijdou emailem, zobraz QR blok na stránce
+        btn.textContent       = '✓ Objednávka přijata - platební instrukce a QR kód dorazí na email.';
         btn.style.background  = '#1a6e35';
         btn.style.borderColor = '#1a6e35';
+        if (json?.qrDataUrl) {
+          const qrBlock = document.getElementById('qr-block');
+          if (qrBlock) {
+            document.getElementById('qr-img').src           = json.qrDataUrl;
+            document.getElementById('qr-vs').textContent    = json.vs || '';
+            document.getElementById('qr-total').textContent = json.total ? json.total + ' Kč' : '';
+            qrBlock.style.display = '';
+            qrBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
         form.reset();
         document.getElementById('order-summary')?.classList.remove('active');
         const hint = document.getElementById('pickup-hint');
         if (hint) hint.style.display = 'none';
+      } else if (!res.ok && json?.error === 'payment_gateway_error') {
+        const detail = json.detail === 'missing_credentials' ? 'Platební brána není nakonfigurována.' : 'Platební brána vrátila chybu.';
+        throw new Error(`${detail} Zkus bankovní převod nebo napiš na info@coffeeforua.cz`);
       } else {
         throw new Error('server error');
       }
-    } catch {
+    } catch (err) {
       btn.textContent = orig;
       btn.disabled    = false;
       const errEl = document.getElementById('form-error');
-      if (errEl) errEl.style.display = '';
+      if (errEl) {
+        const customMsg = err?.message && !err.message.includes('server') ? err.message : null;
+        if (customMsg) {
+          errEl.innerHTML = customMsg;
+        }
+        errEl.style.display = '';
+      }
     }
   });
 }

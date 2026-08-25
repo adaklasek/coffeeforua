@@ -108,23 +108,16 @@ async function generatePaymentQR(iban, amount, vs) {
 }
 
 // ─── HTTP helper ──────────────────────────────────────────────────────────────
-function httpRequest(method, hostname, path, headers, body, redirectCount = 0) {
+function httpPost(hostname, path, headers, body) {
   return new Promise((resolve, reject) => {
-    const payload = body ? (typeof body === 'string' ? body : JSON.stringify(body)) : '';
-    const reqHeaders = payload
-      ? { ...headers, 'Content-Length': Buffer.byteLength(payload) }
-      : headers;
-    const req = https.request({ hostname, path, method, headers: reqHeaders }, res => {
-      // 303 = See Other → follow as GET without body
-      if (res.statusCode === 303 && res.headers.location && redirectCount < 3) {
-        const url = new URL(res.headers.location);
-        resolve(httpRequest('GET', url.hostname, url.pathname + url.search, {}, null, redirectCount + 1));
-        return;
-      }
-      // Other redirects → repeat same method
-      if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location && redirectCount < 3) {
-        const url = new URL(res.headers.location);
-        resolve(httpRequest(method, url.hostname, url.pathname + url.search, headers, body, redirectCount + 1));
+    const payload = typeof body === 'string' ? body : JSON.stringify(body);
+    const req = https.request({ hostname, path, method: 'POST', headers: {
+      ...headers, 'Content-Length': Buffer.byteLength(payload),
+    }}, res => {
+      // 303 = Comgate vraci Location jako platební URL - nezpracovávat tělo
+      if (res.statusCode === 303 && res.headers.location) {
+        res.resume();
+        resolve({ status: 303, body: '', location: res.headers.location });
         return;
       }
       let data = '';
@@ -132,13 +125,9 @@ function httpRequest(method, hostname, path, headers, body, redirectCount = 0) {
       res.on('end', () => resolve({ status: res.statusCode, body: data }));
     });
     req.on('error', reject);
-    if (payload) req.write(payload);
+    req.write(payload);
     req.end();
   });
-}
-
-function httpPost(hostname, path, headers, body) {
-  return httpRequest('POST', hostname, path, headers, body);
 }
 
 // ─── Email (Resend) ───────────────────────────────────────────────────────────
@@ -239,11 +228,18 @@ async function createComgatePayment(o) {
     params
   );
 
-  console.log('Comgate response status:', result.status, 'body:', result.body.slice(0, 500));
+  console.log('Comgate response status:', result.status, 'location:', result.location, 'body:', result.body.slice(0, 200));
+
+  // 303 redirect = Comgate přesměrovává přímo na platební stránku
+  if (result.status === 303 && result.location) {
+    return result.location;
+  }
+
   if (result.status !== 200) {
     return { error: true, code: null, message: `http_${result.status}`, httpStatus: result.status };
   }
-  // Comgate vraci application/x-www-form-urlencoded
+
+  // 200 s querystring tělem (starší verze API)
   const parsed = querystring.parse(result.body);
   if (parsed.code === '0' && parsed.transId) {
     return parsed.redirect || `https://payments.comgate.cz/client/instructions/index?id=${parsed.transId}`;

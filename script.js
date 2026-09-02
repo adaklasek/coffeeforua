@@ -146,12 +146,63 @@ function openPacketa() {
 }
 
 // ─── Objednávkový formulář ────────────────────────────────────────────────────
+// ─── Inline form validation ───────────────────────────────────────────────────
+function showFieldError(name, msg) {
+  const input = document.querySelector(`[name="${name}"]`);
+  if (!input) return;
+  let errEl = input.parentElement.querySelector('.field-err');
+  if (!errEl) {
+    errEl = document.createElement('p');
+    errEl.className = 'field-err';
+    errEl.style.cssText = 'color:#c0392b;font-size:0.8rem;margin:0.3rem 0 0;font-weight:600';
+    input.parentElement.appendChild(errEl);
+  }
+  errEl.textContent = msg;
+  input.style.borderColor = '#c0392b';
+}
+
+function clearFieldErrors() {
+  document.querySelectorAll('.field-err').forEach(el => el.remove());
+  document.querySelectorAll('.order-form input, .order-form textarea').forEach(el => {
+    el.style.borderColor = '';
+  });
+}
+
+function validateForm(data) {
+  const errors = [];
+  if (!data.jmeno?.trim()) errors.push({ name: 'jmeno', msg: 'Zadejte jméno a příjmení.' });
+  if (!data.email?.trim()) {
+    errors.push({ name: 'email', msg: 'Zadejte emailovou adresu.' });
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
+    errors.push({ name: 'email', msg: 'Email nemá správný formát (např. jan@email.cz).' });
+  }
+  if (!data.telefon?.trim()) {
+    errors.push({ name: 'telefon', msg: 'Zadejte telefonní číslo.' });
+  } else if (!/^[+\d\s\-()]{9,}$/.test(data.telefon.trim())) {
+    errors.push({ name: 'telefon', msg: 'Telefon nemá správný formát (min. 9 číslic).' });
+  }
+  return errors;
+}
+
 const form = document.getElementById('order-form');
 if (form) {
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const btn  = document.getElementById('submit-btn');
     const orig = btn.textContent;
+
+    clearFieldErrors();
+    const fd   = new FormData(form);
+    const data = Object.fromEntries(fd.entries());
+
+    // Validace polí
+    const fieldErrors = validateForm(data);
+    if (fieldErrors.length > 0) {
+      fieldErrors.forEach(({ name, msg }) => showFieldError(name, msg));
+      document.querySelector('.field-err')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
     btn.textContent = 'Odesílám...';
     btn.disabled = true;
 
@@ -166,9 +217,6 @@ if (form) {
         document.getElementById('ci-etiopie')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-
-      const fd   = new FormData(form);
-      const data = Object.fromEntries(fd.entries());
 
       const res = await fetch(form.action, {
         method: 'POST',

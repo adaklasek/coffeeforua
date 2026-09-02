@@ -207,20 +207,22 @@ async function createComgatePayment(o) {
   if (!merchant || !secret) return null;
 
   const isTest = process.env.COMGATE_TEST === 'true';
-  const params = querystring.stringify({
+  const label = o.nazev.replace(/[^a-zA-Z0-9 ]/g, '').substring(0, 16).trim() || 'BRAVE BREW';
+  const paramObj = {
     merchant, secret,
     price:     o.total * 100,
     curr:      'CZK',
-    label:     o.nazev.substring(0, 16),
+    label,
     refId:     o.vs,
     method:    'ALL',
     email:     o.email,
-    name:      o.jmeno,
-    test:      isTest ? 'true' : 'false',
+    prepareOnly: 'false',
     returnUrl: 'https://coffeeforua.cz/dekujeme.html',
     cancelUrl: 'https://coffeeforua.cz/#objednat',
     notifUrl:  'https://coffeeforua.cz/.netlify/functions/comgate-webhook',
-  });
+  };
+  if (isTest) paramObj.test = 'true';
+  const params = querystring.stringify(paramObj);
 
   const result = await httpPost(
     'payments.comgate.cz', '/v1.0/create',

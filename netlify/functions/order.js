@@ -230,15 +230,10 @@ async function createComgatePayment(o) {
     params
   );
 
-  console.log('Comgate response status:', result.status, 'location:', result.location, 'body:', result.body.slice(0, 200));
-
-  // 3xx redirect = Comgate přesměrovává přímo na platební stránku
-  if ([301, 302, 303, 307, 308].includes(result.status) && result.location) {
-    return result.location;
-  }
+  console.log('Comgate response status:', result.status, 'location:', result.location, 'body:', result.body.slice(0, 400));
 
   if (result.status !== 200) {
-    return { error: true, code: null, message: `http_${result.status}`, httpStatus: result.status };
+    return { error: true, code: null, message: `http_${result.status}_location_${result.location || 'none'}`, httpStatus: result.status };
   }
 
   // 200 s querystring tělem (starší verze API)

@@ -181,6 +181,12 @@ function validateForm(data) {
   } else if (!/^[+\d\s\-()]{9,}$/.test(data.telefon.trim())) {
     errors.push({ name: 'telefon', msg: 'Telefon nemá správný formát (min. 9 číslic).' });
   }
+  if (data.doprava === 'zasilkovna' && !data['vydejna-name']?.trim()) {
+    errors.push({ name: 'vydejna-name', msg: 'Vyberte výdejní místo Zásilkovny.' });
+  }
+  if (data.doprava === 'kuryr' && !data.adresa?.trim()) {
+    errors.push({ name: 'adresa', msg: 'Zadejte doručovací adresu.' });
+  }
   return errors;
 }
 

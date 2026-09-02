@@ -216,7 +216,7 @@ async function createComgatePayment(o) {
     refId:     o.vs,
     method:    'ALL',
     email:     o.email,
-    prepareOnly: 'false',
+    prepareOnly: 'true',
     returnUrl: 'https://coffeeforua.cz/dekujeme.html',
     cancelUrl: 'https://coffeeforua.cz/#objednat',
     notifUrl:  'https://coffeeforua.cz/.netlify/functions/comgate-webhook',

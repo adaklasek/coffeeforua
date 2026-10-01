@@ -44,7 +44,6 @@ exports.handler = async (event) => {
 
   if (status === 'PAID') {
     const totalKc  = Math.round(parseInt(price || 0) / 100);
-    const donated  = Math.round(totalKc / 3.4) * 100; // aproximace - přesná hodnota přijde z objednávky
 
     // Odeslat potvrzovací email zákazníkovi
     if (email) {
@@ -60,7 +59,7 @@ exports.handler = async (event) => {
   Zapražíme a odešleme Zásilkovnou do 3 pracovních dnů. Sledování zásilky dostaneš SMSkou od Zásilkovny.
 </div>
 <p style="background:#EBF2FF;padding:12px 16px;border-radius:4px;font-size:14px">
-  🇺🇦 Z tvé objednávky jde <strong>${donated} Kč</strong> přímo organizaci Koridor.ua.
+  🇺🇦 100 Kč z každého balíčku jde přímo organizaci Koridor.ua.
 </p>
 <p style="font-size:14px">Díky, Adam<br><span style="color:#666">BRAVE BREW · adaklasek@gmail.com</span></p>
 </body></html>`;

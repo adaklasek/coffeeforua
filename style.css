@@ -415,6 +415,10 @@ nav.scrolled {
 .koridor-mini strong { font-size: 0.95rem; }
 .koridor-mini span { font-size: 0.78rem; color: var(--gray); }
 .koridor-mini a { font-size: 0.82rem; font-weight: 700; color: var(--ua-blue); margin-top: 0.5rem; }
+.koridor-mini-url { font-size: 0.82rem !important; font-weight: 700; color: var(--ua-blue) !important; margin-top: 0.5rem; }
+.bb-statement-card-link { display: block; text-decoration: none; }
+.bb-statement-card-link .bb-statement-card { transition: box-shadow 0.2s, transform 0.2s; }
+.bb-statement-card-link:hover .bb-statement-card { box-shadow: 0 8px 32px rgba(0,0,0,0.12); transform: translateY(-2px); }
 
 /* === DOPAD === */
 .dopad { background: var(--black); }

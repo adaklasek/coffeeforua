@@ -59,7 +59,7 @@ exports.handler = async (event) => {
   Zapražíme a odešleme Zásilkovnou do 3 pracovních dnů. Sledování zásilky dostaneš SMSkou od Zásilkovny.
 </div>
 <p style="background:#EBF2FF;padding:12px 16px;border-radius:4px;font-size:14px">
-  🇺🇦 100 Kč z každého balíčku jde přímo organizaci Koridor.ua.
+  🇺🇦 100 Kč z každého balíčku jde přímo organizaci Resistance Support Club.
 </p>
 <p style="font-size:14px">Díky, Adam<br><span style="color:#666">BRAVE BREW · adaklasek@gmail.com</span></p>
 </body></html>`;

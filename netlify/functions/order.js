@@ -172,7 +172,7 @@ ${qrBlock}
   ${itemsTableRows(o.items)}
   <tr><td style="padding:8px 12px">Doprava</td><td style="padding:8px 12px;text-align:right">${o.doprava === 'zasilkovna' ? 'Zásilkovna - výdejní místo' : 'Zásilkovna - kurýr'}${o.vydejna ? ` (${o.vydejna})` : ''} ${o.shipCost === 0 ? '· zdarma' : `· ${o.shipCost} Kč`}</td></tr>
   <tr style="background:#0D0D0D;color:#fff"><td style="padding:8px 12px"><strong>Celkem</strong></td><td style="padding:8px 12px;text-align:right"><strong>${o.total} Kč</strong></td></tr>
-  <tr style="background:#005BBB;color:#fff"><td style="padding:8px 12px">Z toho na Koridor.ua</td><td style="padding:8px 12px;text-align:right"><strong>${o.donated} Kč</strong></td></tr>
+  <tr style="background:#005BBB;color:#fff"><td style="padding:8px 12px">Z toho na Resistance Support Club</td><td style="padding:8px 12px;text-align:right"><strong>${o.donated} Kč</strong></td></tr>
 </table>
 <p style="font-size:14px">Jakmile platba dorazí, pražíme a odesíláme. Zásilkovna 1-3 pracovní dny.</p>
 <p style="font-size:14px">Adam · BRAVE BREW · info@coffeeforua.cz</p>

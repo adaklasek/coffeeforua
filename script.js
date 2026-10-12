@@ -20,7 +20,7 @@ function animateCount(el, target, suffix = '') {
 }
 
 // Update manually as orders come in, or connect to Google Sheets
-const BAGS = 13;
+const BAGS = 26;
 const KC = BAGS * 100;
 
 const els = {

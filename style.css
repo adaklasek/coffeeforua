@@ -283,25 +283,10 @@ nav.scrolled {
 /* === TICKER === */
 .hero-ticker {
   background: linear-gradient(to bottom, var(--ua-yellow) 50%, var(--ua-blue) 50%);
-  overflow: hidden; white-space: nowrap;
-  padding: 0.6rem 0;
+  height: 10px;
   position: relative; z-index: 1;
-  cursor: default;
 }
-.hero-ticker:hover .ticker-inner { animation-play-state: paused; }
-.ticker-inner {
-  display: inline-flex; gap: 2.5rem;
-  animation: ticker 40s linear infinite;
-  font-size: 0.7rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.12em;
-  color: var(--black);
-}
-.ticker-inner span { opacity: 0.9; }
-.ticker-inner span:nth-child(2n) { opacity: 0.45; }
-@keyframes ticker {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
+.ticker-inner { display: none; }
 
 /* === PRODUKTY === */
 .kavy { background: var(--white); }
@@ -349,6 +334,7 @@ nav.scrolled {
 .kava-product-img {
   width: 100%; max-width: 260px; height: 280px;
   object-fit: contain; display: block;
+  filter: drop-shadow(0 16px 28px rgba(0,0,0,0.18)) drop-shadow(0 4px 8px rgba(0,0,0,0.10));
 }
 
 .kava-body { padding: 1.75rem 2rem 2rem; background: var(--white); }

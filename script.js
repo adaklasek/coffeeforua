@@ -51,6 +51,12 @@ Object.values(els).forEach(el => { if (el) io.observe(el); });
 const ticker = document.querySelector('.ticker-inner');
 if (ticker) ticker.innerHTML += ticker.innerHTML;
 
+// Hero product flip - auto-flip every 5 seconds
+const heroFlip = document.getElementById('hero-flip');
+if (heroFlip) {
+  setInterval(() => heroFlip.classList.toggle('is-flipped'), 5000);
+}
+
 // ─── Packeta API key ──────────────────────────────────────────────────────────
 const PACKETA_API_KEY = '1e13f3ef06a99418';
 
